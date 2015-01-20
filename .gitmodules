@@ -1,0 +1,6 @@
+[submodule "Nebuleuse/curl"]
+	path = Nebuleuse/curl
+	url = https://github.com/bagder/curl
+[submodule "Nebuleuse/rapidjson"]
+	path = Nebuleuse/rapidjson
+	url = https://github.com/miloyip/rapidjson.git
