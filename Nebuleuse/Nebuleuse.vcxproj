@@ -105,10 +105,10 @@
     <ClInclude Include="include\Nebuleuse.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="include\Parser.cpp" />
-    <ClCompile Include="include\Talker.cpp" />
     <ClCompile Include="src\CurlWrap.cpp" />
     <ClCompile Include="src\Nebuleuse.cpp" />
+    <ClCompile Include="src\Parser.cpp" />
+    <ClCompile Include="src\Talker.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

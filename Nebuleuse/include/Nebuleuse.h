@@ -9,8 +9,7 @@ namespace Neb{
 	{
 		NEBULEUSE_NOTCONNECTED = 0,
 		NEBULEUSE_DISABLED,
-		NEBULEUSE_CONNECTED,
-		NEBULEUSE_WORKING
+		NEBULEUSE_CONNECTED
 	};
 	enum NebuleuseError
 	{
@@ -18,7 +17,6 @@ namespace Neb{
 		NEBULEUSE_ERROR, //Unspecified error
 		NEBULEUSE_ERROR_DISCONNECTED, //The session timed out or never existed
 		NEBULEUSE_ERROR_LOGIN, //Error during login
-		NEBULEUSE_ERROR_BANNED,
 		NEBULEUSE_ERROR_MAINTENANCE,//The service is on maintenance or offline
 		NEBULEUSE_ERROR_OUTDATED,//Game is outdated
 		NEBULEUSE_ERROR_PARSEFAILED
@@ -33,7 +31,7 @@ namespace Neb{
 
 	struct AchievementData
 	{
-		char *Name;
+		std::string Name;
 		unsigned int Progress;
 		unsigned int ProgressMax;
 		unsigned int Id;
@@ -43,34 +41,26 @@ namespace Neb{
 
 	struct PlayerStat
 	{
-		char *Name;
+		std::string Name;
 		int Value;
 		bool Changed;
 	};
-
-	struct KillInfo
+	struct Stat
 	{
-	public:
-		KillInfo(const char *weapon, int x, int y, int z) : weapon(weapon), x(x), y(y), z(z)
-		{
+		Stat(std::string n, std::string v){
+			Name = n;
+			Value = v;
 		}
-		~KillInfo()
-		{
-			delete weapon;
+		std::string Name;
+		std::string Value;
+	};
+	struct ComplexStat
+	{
+		std::string Name;
+		std::vector<Stat> Values;
+		void AddValue(std::string name, std::string value){
+			Values.push_back(Stat(name, value));
 		}
-		const char *getWeapon() const
-		{
-			return weapon;
-		}
-		void getPos(int& rx, int& ry, int& rz) const
-		{
-			rx = x;
-			ry = y;
-			rz = z;
-		}
-	private:
-		const char* weapon;
-		const int x, y, z;
 	};
 
 	class Nebuleuse
@@ -83,21 +73,24 @@ namespace Neb{
 		///Start Nebuleuse, true if service is avialable
 		bool Init();
 		bool Connect(std::string username, std::string password);
+		void Disconnect(bool fireCallback = false);
 
 		///Return the current state of Nebuleuse
-		int GetState();
-		void SetState(int state);
-		bool IsBanned();
-		bool IsUnavailable();
-		bool IsOutDated();
+		std::string getUserName() { return _Username; }
+		std::string getPassword() { return _Password; }
+		std::string getHost() { return _HostName; };
+		std::string GetSessionID() { return _SessionID; };
+		std::string GetSubMessage() { return _Motd; }
 
-		std::string getUserName() { return m_cUserName; }
-		const std::string getHost() { return m_cHostName; };
-		std::string GetSessionID() { return m_cSessionID; };
-		void SetCurrentMap(const std::string map);
+		NebuleusePlayerRank GetPlayerRank() { return _PlayerRank; }
+		bool IsBanned() { return (_PlayerRank == NEBULEUSE_USER_RANK_BANNED); }
+		bool IsUnavailable() { return (LastError != NEBULEUSE_ERROR_NONE) || (GetState() == NEBULEUSE_NOTCONNECTED); }
+		bool IsOutDated() { return (LastError == NEBULEUSE_ERROR_OUTDATED); }
+		void SetState(NebuleuseState state){ _State = state; }
+		int GetState(){ return _State; }
 		void SetOutDated() { LastError = NEBULEUSE_ERROR_OUTDATED; };
 
-		int GetPlayerRank();
+		std::string CreateUrl(std::string path);
 
 		///Get the player stats
 		PlayerStat GetPlayerStats(const std::string Name);
@@ -107,75 +100,87 @@ namespace Neb{
 		///Send Stats data
 		void SendPlayerStats();
 
-		///Add a Kill to the list
-		void AddKill(KillInfo *info);
+		//Add the complex stat to the list
+		void AddComplexStat(ComplexStat stat);
+		//Send the complex stats to the server
+		void SendComplexStats();
+
+		//Achievements
 
 		///Get the specified achievemnt data
 		AchievementData GetAchievementData(std::string Name);
 		AchievementData GetAchievementData(int index);
 		///Set the specified achievement data
 		void SetAchievementData(AchievementData data);
-		///Update the Progress of this achievement (and send it)
+		///Update the Progress of this achievement
 		void UpdateAchievementProgress(std::string Name, int Progress);
 		void UpdateAchievementProgress(int index, int Progress);
-		///Earn the achievement (and send it)
+		///Earn the achievement
 		void UnlockAchievement(std::string Name);
 		void UnlockAchievement(int index);
 		///Sends the achievements that have been modified
 		void SendAchievements();
-		///Achievement earn CallBack
-		void SetAchievementCallBack(void(*Callback)(int));
-		///Return the number of achievements
-		int GetAchievementCount() { return m_iAchievementCount; }
-		std::string GetSubMessage() { return m_cMotd; }
+		///Get the number of achievements
+		int GetAchievementCount();
+
+		//Set callbacks
 		void SetLogCallBack(void(*Callback)(std::string));
-		void CustomTalk(char* Url, void(*Callback)(char*));
-		void(*m_CustomTalk_Callback)(char *);
+		void SetErrorCallBack(void(*Callback)(NebuleuseError, std::string Msg));
+		//Set Achievement CallBack when one is earned
+		void SetAchievementCallBack(void(*Callback)(std::string name));
+		//Set Callback called when connect() finished
+		void SetConnectCallback(void(*Callback)(bool success));
+		//Set Callback called when Nebuleuse is Disconnected
+		void SetDisconnectCallback(void(*Callback)());
 
 		//Parser
 		void Parse_Status(std::string);
 		void Parse_Connect(std::string);
-		void Parse_SessionData(std::string data);
-		void Parse_RcvErrorCode(int code);
+		void Parse_UserInfos(std::string);
+		void Parse_Errors(std::string);
 	private:
-		void SetErrorCallBack(void(*Callback)(NebuleuseError));
-		void(*m_NebuleuseError_Callback)(NebuleuseError);
-		void(*m_NebuleuseLog_Callback)(std::string);
-		void(*m_AchievementEarned_CallBack)(int);
-		void ThrowError(NebuleuseError e);
+		void FinishConnect();
+
+		//Callbacks
+		void(*_NebuleuseError_Callback)(NebuleuseError, std::string Msg);
+		void(*_NebuleuseLog_Callback)(std::string);
+		void(*_AchievementEarned_CallBack)(std::string);
+		void(*_Connect_Callback)(bool sucess);
+		void(*_Disconnect_Callback)();
+
+		void ThrowError(NebuleuseError e, std::string Msg = "");
+		void ThrowError(int e, std::string Msg = "");
 		void Log(std::string msg);
 		const std::string CreateStatsMsg();
 
 		//Talker
 		void Talk_GetServiceStatus();
 		void Talk_Connect(std::string username, std::string password);
-		void Talk_GetStatData();
-		void Talk_GetNewSession();
-		void Talk_SendAchievementProgress(int id);
-		void Talk_SendStatsUpdate(const std::string stats);
+		void Talk_GetUserInfo();
+		void Talk_SendComplexStats(std::string data);
+		void Talk_SendAchievementProgress();
+		void Talk_SendStatsUpdate(std::string stats);
 		void Talk_GetAvatar();
-		size_t RcvConnectInfos(void *ptr, size_t size, size_t nmemb, void *userdata);
-		//size_t RcvSessionInfos( void *ptr, size_t size, size_t nmemb, void *userdata);
+
+		//Parser
+		std::string Parse_CreateComplexStatJson();
 	public:
 		int LastError;
-		char *m_ConnectAns;
-		CurlWrap *m_Curl;
+		CurlWrap *_Curl;
 
 	private:
-		std::vector<PlayerStat> m_PlayerStats;
-		int m_iPlayerStatsCount;
-		std::vector<AchievementData> m_Achievements;
-		int m_iAchievementCount;
+		std::string _HostName;
+		unsigned int _Version;
+		std::string _Username;
+		std::string _Password;
+		std::string _Motd;
+		NebuleusePlayerRank _PlayerRank;
+		NebuleuseState _State;
+		std::string _SessionID;
+		std::string _AvatarUrl;
 
-		std::string m_cHostName;
-		unsigned int m_uiVersion;
-		std::string m_cUserName;
-		std::string m_cMotd;
-		int m_iPlayerRank;
-		int m_iState;
-		std::string m_cSessionID;
-
-		std::vector<KillInfo*> m_vKills;
-		std::string m_sCurMap;
+		std::vector<ComplexStat> _CStats;
+		std::vector<PlayerStat> _PlayerStats;
+		std::vector<AchievementData> _Achievements;
 	};
 }

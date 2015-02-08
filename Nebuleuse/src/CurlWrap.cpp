@@ -62,7 +62,7 @@ namespace Neb{
 
 		headerlist = curl_slist_append(headerlist, "Expect: 100-continue");
 		curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headerlist);
-		curl_easy_setopt(handle, CURLOPT_VERBOSE, 1L);
+		curl_easy_setopt(handle, CURLOPT_VERBOSE, 0L);
 
 		postStr = "";
 
