@@ -13,6 +13,7 @@ namespace Neb{
 		boost::thread thre(getStatus, this);
 		thre.join();
 	}
+
 	void getUserInfos(Nebuleuse *neb){
 		neb->_Curl->Lock();
 		neb->_Curl->addPost("sessionid", neb->GetSessionID());
@@ -34,6 +35,7 @@ namespace Neb{
 	void Nebuleuse::Talk_Connect(std::string username, std::string password){
 		boost::thread thre(connect, this, username, password);
 	}
+
 	void sendComplexStats(Nebuleuse * neb, std::string data){
 		neb->_Curl->Lock();
 		neb->_Curl->addPost("sessionid", neb->GetSessionID());
@@ -46,6 +48,19 @@ namespace Neb{
 	void Nebuleuse::Talk_SendComplexStats(std::string data){
 		boost::thread thre(sendComplexStats, this, data);
 	}
+	void sendStats(Nebuleuse *neb, std::string data){
+		neb->_Curl->Lock();
+		neb->_Curl->addPost("sessionid", neb->GetSessionID());
+		neb->_Curl->addPost("data", data);
+		std::string res = neb->_Curl->fetchPage(neb->CreateUrl("/updateStats"), true);
+		neb->_Curl->Unlock();
+
+		neb->Parse_Errors(res);
+	}
+	void Nebuleuse::Talk_SendStatsUpdate(std::string data){
+		boost::thread thre(sendStats, this, data);
+	}
+
 	void sendAchievements(Nebuleuse *neb, std::string data){
 		neb->_Curl->Lock();
 		neb->_Curl->addPost("sessionid", neb->GetSessionID());

@@ -11,7 +11,7 @@ namespace Neb{
 
 		_Version = version;
 
-		_PlayerRank = NEBULEUSE_USER_RANK_NORMAL;
+		_UserRank = NEBULEUSE_USER_RANK_NORMAL;
 	}
 
 	Nebuleuse::~Nebuleuse() {}
@@ -24,7 +24,7 @@ namespace Neb{
 	bool Nebuleuse::Connect(std::string username, std::string password){
 		if (_Username != username){ //New user, wipe older infos
 			_Achievements.clear();
-			_PlayerStats.clear();
+			_UserStats.clear();
 			_CStats.clear();
 		}
 

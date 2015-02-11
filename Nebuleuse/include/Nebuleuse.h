@@ -22,7 +22,7 @@ namespace Neb{
 		NEBULEUSE_ERROR_OUTDATED,//Game is outdated
 		NEBULEUSE_ERROR_PARSEFAILED
 	};
-	enum NebuleusePlayerRank
+	enum NebuleuseUserRank
 	{
 		NEBULEUSE_USER_RANK_BANNED = 0,
 		NEBULEUSE_USER_RANK_NORMAL,
@@ -41,7 +41,7 @@ namespace Neb{
 		void Complete() { Progress = ProgressMax; }
 	};
 
-	struct PlayerStat
+	struct UserStat
 	{
 		std::string Name;
 		int Value;
@@ -84,8 +84,8 @@ namespace Neb{
 		std::string GetSessionID() { return _SessionID; };
 		std::string GetSubMessage() { return _Motd; }
 
-		NebuleusePlayerRank GetPlayerRank() { return _PlayerRank; }
-		bool IsBanned() { return (_PlayerRank == NEBULEUSE_USER_RANK_BANNED); }
+		NebuleuseUserRank GetUserRank() { return _UserRank; }
+		bool IsBanned() { return (_UserRank == NEBULEUSE_USER_RANK_BANNED); }
 		bool IsUnavailable() { return GetState() == NEBULEUSE_NOTCONNECTED; }
 		bool IsOutDated() { return (LastError == NEBULEUSE_ERROR_OUTDATED); }
 		void SetState(NebuleuseState state){ _State = state; }
@@ -94,12 +94,11 @@ namespace Neb{
 
 		std::string CreateUrl(std::string path);
 
-		///Get the player stats
-		PlayerStat GetPlayerStats(const std::string Name);
-		///Set the player stats
-		void SetPlayerStats(PlayerStat stat);
-		///Send Stats data
-		void SendPlayerStats();
+		//Stats
+		///Get the user stats
+		int GetUserStats(std::string Name);
+		///Set the user stats
+		void SetUserStats(std::string name, int value);
 		
 		//Add the complex stat to the list
 		void AddComplexStat(ComplexStat stat);
@@ -141,6 +140,7 @@ namespace Neb{
 		void FinishConnect();
 
 		void SendAchievement(Achievement ach);
+		void SendStat(UserStat stat);
 
 		//Callbacks
 		void(*_NebuleuseError_Callback)(NebuleuseError, std::string Msg);
@@ -166,6 +166,7 @@ namespace Neb{
 		//Parser
 		std::string Parse_CreateComplexStatJson();
 		std::string Parse_CreateAchievementUpdateJson(Achievement ach);
+		std::string Parse_CreateStatUpdateJson(UserStat stat);
 	public:
 		int LastError;
 		CurlWrap *_Curl;
@@ -176,13 +177,13 @@ namespace Neb{
 		std::string _Username;
 		std::string _Password;
 		std::string _Motd;
-		NebuleusePlayerRank _PlayerRank;
+		NebuleuseUserRank _UserRank;
 		NebuleuseState _State;
 		std::string _SessionID;
 		std::string _AvatarUrl;
 
 		std::vector<ComplexStat> _CStats;
-		std::vector<PlayerStat> _PlayerStats;
+		std::vector<UserStat> _UserStats;
 		std::vector<Achievement> _Achievements;
 	};
 }

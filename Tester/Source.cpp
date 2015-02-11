@@ -22,7 +22,7 @@ void main(){
 	}
 	neb->Connect("test", "test");
 
-	while (!connected);
+	while (!connected); // Here we need to wait for the client to be connected to be able to successfully use it
 
 	Neb::Achievement ach = neb->GetAchievement(1);
 	ach.Progress = ach.Progress + 1;
@@ -38,6 +38,9 @@ void main(){
 	neb->AddComplexStat(st);
 
 	neb->SendComplexStats();
+
+	int val = neb->GetUserStats("kills");
+	neb->SetUserStats("kills", val+1);
 	
 	system("pause");
 }

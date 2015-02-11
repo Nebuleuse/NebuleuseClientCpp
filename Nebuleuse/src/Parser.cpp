@@ -62,7 +62,7 @@ namespace Neb{
 		PARSEANDCHECK(data)
 
 		if (doc.HasMember("Rank")){
-			_PlayerRank = static_cast<NebuleusePlayerRank>(doc["Rank"].GetInt());
+			_UserRank = static_cast<NebuleuseUserRank>(doc["Rank"].GetInt());
 		}
 
 		if (doc.HasMember("Avatar")){
@@ -97,11 +97,11 @@ namespace Neb{
 				const Value& Stat = stats[i];
 				if (Stat.HasMember("Name") && Stat.HasMember("Value"))
 				{
-					PlayerStat stt;
+					UserStat stt;
 					stt.Name = Stat["Name"].GetString();
 					stt.Value = Stat["Value"].GetInt();
 					stt.Changed = false;
-					_PlayerStats.push_back(stt);
+					_UserStats.push_back(stt);
 				}
 			}
 		}
@@ -151,7 +151,23 @@ namespace Neb{
 		PrettyWriter<StringBuffer> writer(buffer);
 		doc.Accept(writer);
 
-		_CStats.clear();
+		return buffer.GetString();
+	}
+	std::string Nebuleuse::Parse_CreateStatUpdateJson(UserStat stat){
+		Document doc;
+		doc.SetObject();
+		Document::AllocatorType& allocator = doc.GetAllocator();
+		Value AllStats(kArrayType);
+
+		Value Stat(kObjectType);
+		Stat.AddMember("Name", STDTOJSONVAL(stat.Name), allocator);
+		Stat.AddMember("Value", stat.Value, allocator);
+		AllStats.PushBack(Stat, allocator);
+
+		doc.AddMember("Stats", AllStats, allocator);
+		StringBuffer buffer;
+		PrettyWriter<StringBuffer> writer(buffer);
+		doc.Accept(writer);
 
 		return buffer.GetString();
 	}
