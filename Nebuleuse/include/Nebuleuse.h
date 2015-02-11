@@ -17,6 +17,7 @@ namespace Neb{
 		NEBULEUSE_ERROR, //Unspecified error
 		NEBULEUSE_ERROR_DISCONNECTED, //The session timed out or never existed
 		NEBULEUSE_ERROR_LOGIN, //Error during login
+		NEBULEUSE_ERROR_PARTIAL_FAIL, //Error during multiple insertions or updates
 		NEBULEUSE_ERROR_MAINTENANCE,//The service is on maintenance or offline
 		NEBULEUSE_ERROR_OUTDATED,//Game is outdated
 		NEBULEUSE_ERROR_PARSEFAILED
@@ -29,12 +30,13 @@ namespace Neb{
 		NEBULEUSE_URER_RANK_ADMIN
 	};
 
-	struct AchievementData
+	struct Achievement
 	{
 		std::string Name;
 		unsigned int Progress;
 		unsigned int ProgressMax;
 		unsigned int Id;
+		bool Changed;
 		bool IsCompleted() { return Progress >= ProgressMax ? true : false; }
 		void Complete() { Progress = ProgressMax; }
 	};
@@ -84,7 +86,7 @@ namespace Neb{
 
 		NebuleusePlayerRank GetPlayerRank() { return _PlayerRank; }
 		bool IsBanned() { return (_PlayerRank == NEBULEUSE_USER_RANK_BANNED); }
-		bool IsUnavailable() { return (LastError != NEBULEUSE_ERROR_NONE) || (GetState() == NEBULEUSE_NOTCONNECTED); }
+		bool IsUnavailable() { return GetState() == NEBULEUSE_NOTCONNECTED; }
 		bool IsOutDated() { return (LastError == NEBULEUSE_ERROR_OUTDATED); }
 		void SetState(NebuleuseState state){ _State = state; }
 		int GetState(){ return _State; }
@@ -94,12 +96,11 @@ namespace Neb{
 
 		///Get the player stats
 		PlayerStat GetPlayerStats(const std::string Name);
-
 		///Set the player stats
 		void SetPlayerStats(PlayerStat stat);
 		///Send Stats data
 		void SendPlayerStats();
-
+		
 		//Add the complex stat to the list
 		void AddComplexStat(ComplexStat stat);
 		//Send the complex stats to the server
@@ -108,20 +109,18 @@ namespace Neb{
 		//Achievements
 
 		///Get the specified achievemnt data
-		AchievementData GetAchievementData(std::string Name);
-		AchievementData GetAchievementData(int index);
+		Achievement GetAchievement(std::string Name);
+		Achievement GetAchievement(int index);
 		///Set the specified achievement data
-		void SetAchievementData(AchievementData data);
+		void SetAchievement(Achievement data);
 		///Update the Progress of this achievement
 		void UpdateAchievementProgress(std::string Name, int Progress);
 		void UpdateAchievementProgress(int index, int Progress);
 		///Earn the achievement
 		void UnlockAchievement(std::string Name);
 		void UnlockAchievement(int index);
-		///Sends the achievements that have been modified
-		void SendAchievements();
-		///Get the number of achievements
-		int GetAchievementCount();
+		//Get the number of achievements
+		unsigned int GetAchievementCount();
 
 		//Set callbacks
 		void SetLogCallBack(void(*Callback)(std::string));
@@ -141,6 +140,8 @@ namespace Neb{
 	private:
 		void FinishConnect();
 
+		void SendAchievement(Achievement ach);
+
 		//Callbacks
 		void(*_NebuleuseError_Callback)(NebuleuseError, std::string Msg);
 		void(*_NebuleuseLog_Callback)(std::string);
@@ -158,12 +159,13 @@ namespace Neb{
 		void Talk_Connect(std::string username, std::string password);
 		void Talk_GetUserInfo();
 		void Talk_SendComplexStats(std::string data);
-		void Talk_SendAchievementProgress();
+		void Talk_SendAchievementProgress(std::string data);
 		void Talk_SendStatsUpdate(std::string stats);
 		void Talk_GetAvatar();
 
 		//Parser
 		std::string Parse_CreateComplexStatJson();
+		std::string Parse_CreateAchievementUpdateJson(Achievement ach);
 	public:
 		int LastError;
 		CurlWrap *_Curl;
@@ -181,6 +183,6 @@ namespace Neb{
 
 		std::vector<ComplexStat> _CStats;
 		std::vector<PlayerStat> _PlayerStats;
-		std::vector<AchievementData> _Achievements;
+		std::vector<Achievement> _Achievements;
 	};
 }

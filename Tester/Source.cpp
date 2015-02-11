@@ -1,8 +1,9 @@
 #include <iostream>
 #include "Nebuleuse.h"
-
+Neb::Nebuleuse *neb;
+bool connected = false;
 void main(){
-	Neb::Nebuleuse *neb = new Neb::Nebuleuse("http://127.0.0.1:8080", 1);
+	neb = new Neb::Nebuleuse("http://127.0.0.1:8080", 1);
 	neb->SetLogCallBack([](std::string l) {
 		std::cout << l;
 	});
@@ -12,13 +13,20 @@ void main(){
 		std::cout << Msg;
 	});
 	neb->SetConnectCallback([](bool success){
-		std::cout << "Connected";
+		std::cout << "Connected\n";
+		connected = success;
 	});
 
 	if (!neb->Init()){
 		return;
 	}
 	neb->Connect("test", "test");
+
+	while (!connected);
+
+	Neb::Achievement ach = neb->GetAchievement(1);
+	ach.Progress = ach.Progress + 1;
+	neb->SetAchievement(ach);
 
 	Neb::ComplexStat st;
 	st.Name = "kills";
@@ -29,5 +37,7 @@ void main(){
 	st.AddValue("map", "test");
 	neb->AddComplexStat(st);
 
+	neb->SendComplexStats();
+	
 	system("pause");
 }

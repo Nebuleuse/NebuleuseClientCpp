@@ -49,12 +49,15 @@ namespace Neb{
 		ThrowError(static_cast<NebuleuseError>(e), Msg);
 	}
 	void Nebuleuse::ThrowError(NebuleuseError e, std::string Msg){
+		if (e == NEBULEUSE_ERROR_NONE)
+			return;
+		
 		LastError = e;
 		if (_NebuleuseError_Callback)
 			_NebuleuseError_Callback(e, Msg);
-		if (e == NEBULEUSE_ERROR_DISCONNECTED){
+
+		if (e == NEBULEUSE_ERROR_DISCONNECTED)
 			Disconnect();
-		}
 	}
 
 	void Nebuleuse::Log(std::string msg){
@@ -90,6 +93,9 @@ namespace Neb{
 	}
 
 	void Nebuleuse::SendComplexStats(){
+		if (IsUnavailable())
+			return;
+
 		std::string Msg;
 		Msg = Parse_CreateComplexStatJson();
 		Talk_SendComplexStats(Msg);

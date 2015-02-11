@@ -1,4 +1,5 @@
 #include "Nebuleuse.h"
+#include <boost/thread/thread.hpp>
 
 namespace Neb{
 	void getStatus(Nebuleuse *neb){
@@ -37,12 +38,24 @@ namespace Neb{
 		neb->_Curl->Lock();
 		neb->_Curl->addPost("sessionid", neb->GetSessionID());
 		neb->_Curl->addPost("data", data);
-		std::string res = neb->_Curl->fetchPage(neb->CreateUrl("/updateComplexStats"), true);
+		std::string res = neb->_Curl->fetchPage(neb->CreateUrl("/addComplexStats"), true);
 		neb->_Curl->Unlock();
 
 		neb->Parse_Errors(res);
 	}
 	void Nebuleuse::Talk_SendComplexStats(std::string data){
 		boost::thread thre(sendComplexStats, this, data);
+	}
+	void sendAchievements(Nebuleuse *neb, std::string data){
+		neb->_Curl->Lock();
+		neb->_Curl->addPost("sessionid", neb->GetSessionID());
+		neb->_Curl->addPost("data", data);
+		std::string res = neb->_Curl->fetchPage(neb->CreateUrl("/updateAchievements"), true);
+		neb->_Curl->Unlock();
+
+		neb->Parse_Errors(res);
+	}
+	void Nebuleuse::Talk_SendAchievementProgress(std::string data){
+		boost::thread thre(sendAchievements, this, data);
 	}
 }

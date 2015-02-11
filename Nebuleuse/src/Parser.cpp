@@ -78,11 +78,12 @@ namespace Neb{
 				const Value& Ach = achievements[i];
 				if (Ach.HasMember("Name") && Ach.HasMember("Progress") && Ach.HasMember("Value"))
 				{
-					AchievementData newAchievement;
+					Achievement newAchievement;
 					newAchievement.Name = Ach["Name"].GetString();
 					newAchievement.Progress = Ach["Progress"].GetUint();
 					newAchievement.ProgressMax = Ach["Value"].GetUint();
-					newAchievement.Id = AchNbr;
+					newAchievement.Id = Ach["Id"].GetUint();
+					newAchievement.Changed = false;
 					_Achievements.push_back(newAchievement);
 					AchNbr++;
 				}
@@ -131,7 +132,27 @@ namespace Neb{
 		doc.Accept(writer);
 
 		_CStats.clear();
+
+		return buffer.GetString();
+	}
+	std::string Nebuleuse::Parse_CreateAchievementUpdateJson(Achievement ach){
+		Document doc;
+		doc.SetObject();
+		Document::AllocatorType& allocator = doc.GetAllocator();
+		Value AllAch(kArrayType);
 		
+		Value Ach(kObjectType);
+		Ach.AddMember("Id", ach.Id, allocator);
+		Ach.AddMember("Value", ach.Progress, allocator);
+		AllAch.PushBack(Ach, allocator);
+		
+		doc.AddMember("Achievements", AllAch, allocator);
+		StringBuffer buffer;
+		PrettyWriter<StringBuffer> writer(buffer);
+		doc.Accept(writer);
+
+		_CStats.clear();
+
 		return buffer.GetString();
 	}
 }
