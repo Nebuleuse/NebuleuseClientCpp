@@ -167,6 +167,8 @@ namespace Neb{
 		std::string Parse_CreateComplexStatJson();
 		std::string Parse_CreateAchievementUpdateJson(Achievement ach);
 		std::string Parse_CreateStatUpdateJson(UserStat stat);
+		
+		void UpdateAchievement(int i, int progress);
 	public:
 		int LastError;
 		CurlWrap *_Curl;

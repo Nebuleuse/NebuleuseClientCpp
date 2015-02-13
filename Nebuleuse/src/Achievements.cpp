@@ -21,14 +21,14 @@ namespace Neb{
 			if (_Achievements[i].Id == ach.Id){
 				_Achievements[i] = ach;
 				SendAchievement(_Achievements[i]);
+				
 			}
 		}
 	}
 	void Nebuleuse::UpdateAchievementProgress(std::string name, int progress){
 		for (size_t i = 0; i < _Achievements.size(); i++) {
 			if (_Achievements[i].Name == name){
-				_Achievements[i].Progress = progress;
-				SendAchievement(_Achievements[i]);
+				UpdateAchievement(i, progress);
 				break;
 			}
 		}
@@ -36,8 +36,7 @@ namespace Neb{
 	void Nebuleuse::UpdateAchievementProgress(int id, int progress){
 		for (size_t i = 0; i < _Achievements.size(); i++) {
 			if (_Achievements[i].Id == id){
-				_Achievements[i].Progress = progress;
-				SendAchievement(_Achievements[i]);
+				UpdateAchievement(i, progress);
 				break;
 			}
 		}
@@ -45,8 +44,7 @@ namespace Neb{
 	void Nebuleuse::UnlockAchievement(std::string name){
 		for (size_t i = 0; i < _Achievements.size(); i++) {
 			if (_Achievements[i].Name == name){
-				_Achievements[i].Complete();
-				SendAchievement(_Achievements[i]);
+				UpdateAchievement(i, _Achievements[i].ProgressMax);
 				break;
 			}
 		}
@@ -54,11 +52,20 @@ namespace Neb{
 	void Nebuleuse::UnlockAchievement(int id){
 		for (size_t i = 0; i < _Achievements.size(); i++) {
 			if (_Achievements[i].Id == id){
-				_Achievements[i].Complete();
-				SendAchievement(_Achievements[i]);
+				UpdateAchievement(i, _Achievements[i].ProgressMax);
 				break;
 			}
 		}
+	}
+	void Nebuleuse::UpdateAchievement(int i, int progress){
+		if(_Achievements[i].IsCompleted() || _Achievements[i].Progress == progress)
+			return;
+					
+		if(progress == _Achievements[i].ProgressMax)
+			AchievementUnlocked(_Achievements[i].Name);
+				
+		_Achievements[i].Progress = progress;
+		SendAchievement(_Achievements[i]);
 	}
 	void Nebuleuse::SendAchievement(Achievement ach){
 		if (IsUnavailable()){
@@ -69,7 +76,12 @@ namespace Neb{
 			}
 			return;
 		}
+		
 		std::string msg = Parse_CreateAchievementUpdateJson(ach);
 		Talk_SendAchievementProgress(msg);
+	}
+	void Nebuleuse::AchievementUnlocked(std::string name){
+		if(_AchievementEarned_CallBack)
+			_AchievementEarned_CallBack(name);
 	}
 }
