@@ -62,7 +62,8 @@ namespace Neb{
 			return;
 					
 		if(progress == _Achievements[i].ProgressMax)
-			AchievementUnlocked(_Achievements[i].Name);
+			if (_AchievementEarned_CallBack)
+				_AchievementEarned_CallBack(_Achievements[i].Name);
 				
 		_Achievements[i].Progress = progress;
 		SendAchievement(_Achievements[i]);
@@ -79,9 +80,5 @@ namespace Neb{
 		
 		std::string msg = Parse_CreateAchievementUpdateJson(ach);
 		Talk_SendAchievementProgress(msg);
-	}
-	void Nebuleuse::AchievementUnlocked(std::string name){
-		if(_AchievementEarned_CallBack)
-			_AchievementEarned_CallBack(name);
 	}
 }
