@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Nebuleuse.h"
+
 Neb::Nebuleuse *neb;
 bool connected = false;
 void main(){

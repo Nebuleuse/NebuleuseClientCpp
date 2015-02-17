@@ -40,13 +40,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)rapidjson\include;$(SolutionDir)\boost_1_57_0;$(ProjectDir)\curl\builds\libcurl-vc-x86-debug-static-ipv6-sspi-winssl\include;$(ProjectDir)\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)\boost_1_57_0\stage\lib;$(ProjectDir)\curl\builds\libcurl-vc-x86-debug-static-ipv6-sspi-winssl\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)rapidjson\include;$(SolutionDir)\tinythreadpp\source;$(ProjectDir)\curl\builds\libcurl-vc-x86-debug-static-ipv6-sspi-winssl\include;$(ProjectDir)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\curl\builds\libcurl-vc-x86-debug-static-ipv6-sspi-winssl\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)rapidjson\include;$(SolutionDir)\boost_1_57_0;$(ProjectDir)\curl\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\include;$(ProjectDir)\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)\boost_1_57_0\stage\lib;$(ProjectDir)\curl\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)rapidjson\include;$(SolutionDir)\tinythreadpp\source;$(ProjectDir)\curl\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\include;$(ProjectDir)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\curl\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)lib\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

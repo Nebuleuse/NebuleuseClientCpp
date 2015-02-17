@@ -1,76 +1,78 @@
 #include "Nebuleuse.h"
-#include <boost/thread/thread.hpp>
+#include <thread>
+
+using namespace std;
 
 namespace Neb{
 	void getStatus(Nebuleuse *neb){
 		neb->_Curl->Lock();
-		std::string res = neb->_Curl->fetchPage(neb->CreateUrl("/status"));
+		string res = neb->_Curl->fetchPage(neb->CreateUrl("/status"));
 		neb->_Curl->Unlock();
 
 		neb->Parse_Status(res);
 	}
 	void Nebuleuse::Talk_GetServiceStatus(){
-		boost::thread thre(getStatus, this);
+		thread thre(getStatus, this);
 		thre.join();
 	}
 
 	void getUserInfos(Nebuleuse *neb){
 		neb->_Curl->Lock();
 		neb->_Curl->addPost("sessionid", neb->GetSessionID());
-		std::string res = neb->_Curl->fetchPage(neb->CreateUrl("/getUserInfos"), true);
+		string res = neb->_Curl->fetchPage(neb->CreateUrl("/getUserInfos"), true);
 		neb->_Curl->Unlock();
 
 		neb->Parse_UserInfos(res);
 	}
-	void connect(Nebuleuse *neb, std::string username, std::string password){
+	void connect(Nebuleuse *neb, string username, string password){
 		neb->_Curl->Lock();
 		neb->_Curl->addPost("username", username);
 		neb->_Curl->addPost("password", password);
-		std::string res = neb->_Curl->fetchPage(neb->CreateUrl("/connect"), true);
+		string res = neb->_Curl->fetchPage(neb->CreateUrl("/connect"), true);
 		neb->_Curl->Unlock();
 
 		neb->Parse_Connect(res);
-		boost::thread thre(getUserInfos, neb);
+		thread thre(getUserInfos, neb);
 	}
-	void Nebuleuse::Talk_Connect(std::string username, std::string password){
-		boost::thread thre(connect, this, username, password);
+	void Nebuleuse::Talk_Connect(string username, string password){
+		thread thre(connect, this, username, password);
 	}
 
-	void sendComplexStats(Nebuleuse * neb, std::string data){
+	void sendComplexStats(Nebuleuse * neb, string data){
 		neb->_Curl->Lock();
 		neb->_Curl->addPost("sessionid", neb->GetSessionID());
 		neb->_Curl->addPost("data", data);
-		std::string res = neb->_Curl->fetchPage(neb->CreateUrl("/addComplexStats"), true);
+		string res = neb->_Curl->fetchPage(neb->CreateUrl("/addComplexStats"), true);
 		neb->_Curl->Unlock();
 
 		neb->Parse_Errors(res);
 	}
-	void Nebuleuse::Talk_SendComplexStats(std::string data){
-		boost::thread thre(sendComplexStats, this, data);
+	void Nebuleuse::Talk_SendComplexStats(string data){
+		thread thre(sendComplexStats, this, data);
 	}
-	void sendStats(Nebuleuse *neb, std::string data){
+	void sendStats(Nebuleuse *neb, string data){
 		neb->_Curl->Lock();
 		neb->_Curl->addPost("sessionid", neb->GetSessionID());
 		neb->_Curl->addPost("data", data);
-		std::string res = neb->_Curl->fetchPage(neb->CreateUrl("/updateStats"), true);
+		string res = neb->_Curl->fetchPage(neb->CreateUrl("/updateStats"), true);
 		neb->_Curl->Unlock();
 
 		neb->Parse_Errors(res);
 	}
-	void Nebuleuse::Talk_SendStatsUpdate(std::string data){
-		boost::thread thre(sendStats, this, data);
+	void Nebuleuse::Talk_SendStatsUpdate(string data){
+		thread thre(sendStats, this, data);
 	}
 
-	void sendAchievements(Nebuleuse *neb, std::string data){
+	void sendAchievements(Nebuleuse *neb, string data){
 		neb->_Curl->Lock();
 		neb->_Curl->addPost("sessionid", neb->GetSessionID());
 		neb->_Curl->addPost("data", data);
-		std::string res = neb->_Curl->fetchPage(neb->CreateUrl("/updateAchievements"), true);
+		string res = neb->_Curl->fetchPage(neb->CreateUrl("/updateAchievements"), true);
 		neb->_Curl->Unlock();
 
 		neb->Parse_Errors(res);
 	}
-	void Nebuleuse::Talk_SendAchievementProgress(std::string data){
-		boost::thread thre(sendAchievements, this, data);
+	void Nebuleuse::Talk_SendAchievementProgress(string data){
+		thread thre(sendAchievements, this, data);
 	}
 }

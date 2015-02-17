@@ -1,4 +1,5 @@
 #include "CurlWrap.h"
+
 namespace Neb{
 	size_t writer(const char *data, size_t size, size_t nmemb, std::string *buffer) {
 		size_t result = 0;

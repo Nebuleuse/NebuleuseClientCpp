@@ -1,6 +1,7 @@
-#include <curl/curl.h>
-#include <boost\thread\thread.hpp>
+#include "curl/curl.h"
 #include <string>
+#include <mutex>
+
 namespace Neb{
 	size_t writer(const char *data, size_t size, size_t nmemb, std::string *buffer);
 
@@ -16,7 +17,7 @@ namespace Neb{
 		void Unlock();
 
 	private:
-		boost::mutex mtx_;
+		std::mutex mtx_;
 		CURL *handle;
 		curl_httppost* post;
 		curl_httppost* last;

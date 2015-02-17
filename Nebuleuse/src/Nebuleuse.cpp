@@ -1,6 +1,5 @@
 #include <iostream>
 #include "Nebuleuse.h"
-#include <boost/thread/thread.hpp>
 
 namespace Neb{
 	Nebuleuse::Nebuleuse(std::string addr, unsigned int version){
