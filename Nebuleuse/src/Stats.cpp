@@ -20,4 +20,17 @@ namespace Neb{
 		std::string msg = Parse_CreateStatUpdateJson(stat);
 		Talk_SendStatsUpdate(msg);
 	}
+
+	void Nebuleuse::AddComplexStat(ComplexStat stat){
+		_CStats.push_back(stat);
+	}
+
+	void Nebuleuse::SendComplexStats(){
+		if (IsUnavailable())
+			return;
+
+		std::string Msg;
+		Msg = Parse_CreateComplexStatJson();
+		Talk_SendComplexStats(Msg);
+	}
 }

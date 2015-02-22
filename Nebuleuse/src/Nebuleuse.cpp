@@ -1,4 +1,5 @@
 #include <iostream>
+#include "CurlWrap.h"
 #include "Nebuleuse.h"
 
 namespace Neb{
@@ -11,6 +12,9 @@ namespace Neb{
 		_Version = version;
 
 		_UserRank = NEBULEUSE_USER_RANK_NORMAL;
+		_NebuleuseError_Callback = NULL;
+		_NebuleuseLog_Callback = NULL;
+		_AchievementEarned_CallBack = NULL;
 	}
 
 	Nebuleuse::~Nebuleuse() {}
@@ -85,18 +89,5 @@ namespace Neb{
 		url.append(getHost());
 		url.append(path);
 		return url;
-	}
-
-	void Nebuleuse::AddComplexStat(ComplexStat stat){
-		_CStats.push_back(stat);
-	}
-
-	void Nebuleuse::SendComplexStats(){
-		if (IsUnavailable())
-			return;
-
-		std::string Msg;
-		Msg = Parse_CreateComplexStatJson();
-		Talk_SendComplexStats(Msg);
 	}
 }

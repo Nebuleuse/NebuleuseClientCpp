@@ -1,19 +1,16 @@
+#include "CurlWrap.h"
 #include "Nebuleuse.h"
 #include <thread>
 
 using namespace std;
 
 namespace Neb{
-	void getStatus(Nebuleuse *neb){
-		neb->_Curl->Lock();
-		string res = neb->_Curl->fetchPage(neb->CreateUrl("/status"));
-		neb->_Curl->Unlock();
-
-		neb->Parse_Status(res);
-	}
 	void Nebuleuse::Talk_GetServiceStatus(){
-		thread thre(getStatus, this);
-		thre.join();
+		_Curl->Lock();
+		string res = _Curl->fetchPage(CreateUrl("/status"));
+		_Curl->Unlock();
+
+		Parse_Status(res);
 	}
 
 	void getUserInfos(Nebuleuse *neb){
@@ -29,13 +26,14 @@ namespace Neb{
 		neb->_Curl->addPost("username", username);
 		neb->_Curl->addPost("password", password);
 		string res = neb->_Curl->fetchPage(neb->CreateUrl("/connect"), true);
+		neb->Parse_Connect(res); // We need to parse the reponse before unlocking curl
 		neb->_Curl->Unlock();
-
-		neb->Parse_Connect(res);
-		thread thre(getUserInfos, neb);
 	}
 	void Nebuleuse::Talk_Connect(string username, string password){
 		thread thre(connect, this, username, password);
+		thre.detach();
+		thread thre2(getUserInfos, this);
+		thre2.detach();
 	}
 
 	void sendComplexStats(Nebuleuse * neb, string data){
@@ -49,6 +47,7 @@ namespace Neb{
 	}
 	void Nebuleuse::Talk_SendComplexStats(string data){
 		thread thre(sendComplexStats, this, data);
+		thre.detach();
 	}
 	void sendStats(Nebuleuse *neb, string data){
 		neb->_Curl->Lock();
@@ -61,6 +60,7 @@ namespace Neb{
 	}
 	void Nebuleuse::Talk_SendStatsUpdate(string data){
 		thread thre(sendStats, this, data);
+		thre.detach();
 	}
 
 	void sendAchievements(Nebuleuse *neb, string data){
@@ -74,5 +74,6 @@ namespace Neb{
 	}
 	void Nebuleuse::Talk_SendAchievementProgress(string data){
 		thread thre(sendAchievements, this, data);
+		thre.detach();
 	}
 }

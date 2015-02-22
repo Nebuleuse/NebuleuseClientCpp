@@ -1,8 +1,9 @@
 #include <vector>
 #include <string>
-#include "CurlWrap.h"
 
 #define NEBULEUSEVERSION 1
+
+class CurlWrap;
 
 namespace Neb{
 	enum NebuleuseState
@@ -60,6 +61,9 @@ namespace Neb{
 	{
 		std::string Name;
 		std::vector<Stat> Values;
+		ComplexStat(std::string n){
+			Name = n;
+		}
 		void AddValue(std::string name, std::string value){
 			Values.push_back(Stat(name, value));
 		}
