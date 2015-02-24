@@ -13,71 +13,71 @@ namespace Neb{
 		Parse_Status(res);
 	}
 
-	void getUserInfos(Nebuleuse *neb){
-		neb->_Curl->Lock();
-		neb->_Curl->addPost("sessionid", neb->GetSessionID());
-		string res = neb->_Curl->fetchPage(neb->CreateUrl("/getUserInfos"), true);
-		neb->_Curl->Unlock();
+	void Nebuleuse::Thread_GetServiceStatus(){
+		_Curl->Lock();
+		_Curl->addPost("sessionid", GetSessionID());
+		string res = _Curl->fetchPage(CreateUrl("/getUserInfos"), true);
+		_Curl->Unlock();
 
-		neb->Parse_UserInfos(res);
+		Parse_UserInfos(res);
 	}
 	void Nebuleuse::Talk_GetUserInfos(){
-		thread thre(getUserInfos, this);
+		thread thre(&Nebuleuse::Thread_GetServiceStatus, this);
 		thre.detach();
 	}
 
-	void connect(Nebuleuse *neb, string username, string password){
-		neb->_Curl->Lock();
-		neb->_Curl->addPost("username", username);
-		neb->_Curl->addPost("password", password);
-		string res = neb->_Curl->fetchPage(neb->CreateUrl("/connect"), true);
-		neb->_Curl->Unlock();
+	void Nebuleuse::Thread_Connect(string username, string password){
+		_Curl->Lock();
+		_Curl->addPost("username", username);
+		_Curl->addPost("password", password);
+		string res = _Curl->fetchPage(CreateUrl("/connect"), true);
+		_Curl->Unlock();
 
-		neb->Parse_Connect(res);
+		Parse_Connect(res);
 	}
 	void Nebuleuse::Talk_Connect(string username, string password){
-		thread thre(connect, this, username, password);
+		thread thre(&Nebuleuse::Thread_Connect, this, username, password);
 		thre.detach();
 	}
 
-	void sendComplexStats(Nebuleuse * neb, string data){
-		neb->_Curl->Lock();
-		neb->_Curl->addPost("sessionid", neb->GetSessionID());
-		neb->_Curl->addPost("data", data);
-		string res = neb->_Curl->fetchPage(neb->CreateUrl("/addComplexStats"), true);
-		neb->_Curl->Unlock();
+	void Nebuleuse::Thread_SendComplexStats(string data){
+		_Curl->Lock();
+		_Curl->addPost("sessionid", GetSessionID());
+		_Curl->addPost("data", data);
+		string res = _Curl->fetchPage(CreateUrl("/addComplexStats"), true);
+		_Curl->Unlock();
 
-		neb->Parse_Errors(res);
+		Parse_Errors(res);
 	}
 	void Nebuleuse::Talk_SendComplexStats(string data){
-		thread thre(sendComplexStats, this, data);
+		thread thre(&Nebuleuse::Thread_SendComplexStats, this, data);
 		thre.detach();
 	}
-	void sendStats(Nebuleuse *neb, string data){
-		neb->_Curl->Lock();
-		neb->_Curl->addPost("sessionid", neb->GetSessionID());
-		neb->_Curl->addPost("data", data);
-		string res = neb->_Curl->fetchPage(neb->CreateUrl("/updateStats"), true);
-		neb->_Curl->Unlock();
+	void Nebuleuse::Thread_SendStatsUpdate(string data){
+		_Curl->Lock();
+		_Curl->addPost("sessionid", GetSessionID());
+		_Curl->addPost("data", data);
+		string res = _Curl->fetchPage(CreateUrl("/updateStats"), true);
+		_Curl->Unlock();
 
-		neb->Parse_Errors(res);
+		Parse_Errors(res);
 	}
 	void Nebuleuse::Talk_SendStatsUpdate(string data){
-		thread thre(sendStats, this, data);
+		thread thre(&Nebuleuse::Thread_SendStatsUpdate, this, data);
 		thre.detach();
 	}
 
-	void sendAchievements(Nebuleuse *neb, string data){
-		neb->_Curl->Lock();
-		neb->_Curl->addPost("sessionid", neb->GetSessionID());
-		neb->_Curl->addPost("data", data);
-		string res = neb->_Curl->fetchPage(neb->CreateUrl("/updateAchievements"), true);
-		neb->_Curl->Unlock();
+	void Nebuleuse::Thread_SendAchievementProgress(string data){
+		_Curl->Lock();
+		_Curl->addPost("sessionid", GetSessionID());
+		_Curl->addPost("data", data);
+		string res = _Curl->fetchPage(CreateUrl("/updateAchievements"), true);
+		_Curl->Unlock();
 
-		neb->Parse_Errors(res);
+		Parse_Errors(res);
 	}
 	void Nebuleuse::Talk_SendAchievementProgress(string data){
-		thread thre(sendAchievements, this, data);
+		thread thre(&Nebuleuse::Thread_SendAchievementProgress, this, data);
 		thre.detach();
 	}
 }

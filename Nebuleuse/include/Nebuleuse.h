@@ -100,8 +100,6 @@ namespace Neb{
 		int  GetState()      { return _State; }
 		void SetOutDated()   { LastError = NEBULEUSE_ERROR_OUTDATED; };
 
-		std::string CreateUrl(std::string path);
-
 		//Stats
 		///Get the user stats
 		int GetUserStats(std::string Name);
@@ -114,7 +112,6 @@ namespace Neb{
 		void SendComplexStats();
 
 		//Achievements
-
 		///Get the specified achievemnt data
 		Achievement GetAchievement(std::string Name);
 		Achievement GetAchievement(int index);
@@ -138,15 +135,13 @@ namespace Neb{
 		void SetConnectCallback(void(*Callback)(bool success));
 		//Set Callback called when Nebuleuse is Disconnected
 		void SetDisconnectCallback(void(*Callback)());
-
-		//Parser, DO NOT USE
-		void Parse_Status(std::string);
-		void Parse_Connect(std::string);
-		void Parse_UserInfos(std::string);
-		void Parse_Errors(std::string);
 	private:
+		std::string CreateUrl(std::string path);
+
 		void ProceedConnection();
 		void FinishConnect();
+
+		void UpdateAchievement(int i, int progress);
 
 		void SendAchievements();
 		void SendStats();
@@ -173,17 +168,27 @@ namespace Neb{
 		void Talk_SendAchievementProgress(std::string data);
 		void Talk_SendStatsUpdate(std::string stats);
 		void Talk_GetAvatar();
+		//Talker Threads
+		void Thread_GetServiceStatus();
+		void Thread_Connect(std::string username, std::string password);
+		void Theard_GetUserInfos();
+		void Theard_SendComplexStats(std::string data);
+		void Theard_SendAchievementProgress(std::string data);
+		void Theard_SendStatsUpdate(std::string stats);
+		void Theard_GetAvatar();
 
 		//Parser
 		std::string Parse_CreateComplexStatJson();
 		std::string Parse_CreateChangedAchievementsJson();
 		std::string Parse_CreateChangedStatsJson();
-		
-		void UpdateAchievement(int i, int progress);
+		void Parse_Status(std::string);
+		void Parse_Connect(std::string);
+		void Parse_UserInfos(std::string);
+		void Parse_Errors(std::string);
+
 	public:
 		int LastError;
 		CurlWrap *_Curl;
-
 	private:
 		std::string _HostName;
 		unsigned int _Version;
