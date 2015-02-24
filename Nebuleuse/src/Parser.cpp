@@ -53,7 +53,7 @@ namespace Neb{
 		
 		return;
 	}
-	bool Nebuleuse::Parse_Connect(std::string data){
+	void Nebuleuse::Parse_Connect(std::string data){
 		Document doc;
 		PARSEANDCHECK(data)
 
@@ -62,7 +62,7 @@ namespace Neb{
 		}
 		_SessionID = doc["SessionId"].GetString();
 
-		return true;
+		ProceedConnection();
 	}
 	void Nebuleuse::Parse_UserInfos(std::string data){
 		Document doc;

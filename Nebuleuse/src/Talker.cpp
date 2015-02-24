@@ -25,7 +25,7 @@ namespace Neb{
 		thread thre(getUserInfos, this);
 		thre.detach();
 	}
-	
+
 	void connect(Nebuleuse *neb, string username, string password){
 		neb->_Curl->Lock();
 		neb->_Curl->addPost("username", username);
@@ -33,8 +33,7 @@ namespace Neb{
 		string res = neb->_Curl->fetchPage(neb->CreateUrl("/connect"), true);
 		neb->_Curl->Unlock();
 
-		if(neb->Parse_Connect(res))
-			neb->ProceedConnection();
+		neb->Parse_Connect(res);
 	}
 	void Nebuleuse::Talk_Connect(string username, string password){
 		thread thre(connect, this, username, password);

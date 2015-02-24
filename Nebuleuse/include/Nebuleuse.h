@@ -78,8 +78,9 @@ namespace Neb{
 
 		///Start Nebuleuse, true if service is avialable
 		bool Init();
+		//Connect user
 		void Connect(std::string username, std::string password);
-		void ProceedConnection();
+		//Disconnect user
 		void Disconnect(bool fireCallback = false);
 
 		///Return the current state of Nebuleuse
@@ -138,12 +139,13 @@ namespace Neb{
 		//Set Callback called when Nebuleuse is Disconnected
 		void SetDisconnectCallback(void(*Callback)());
 
-		//Parser
+		//Parser, DO NOT USE
 		void Parse_Status(std::string);
-		bool Parse_Connect(std::string);
+		void Parse_Connect(std::string);
 		void Parse_UserInfos(std::string);
 		void Parse_Errors(std::string);
 	private:
+		void ProceedConnection();
 		void FinishConnect();
 
 		void SendAchievements();
