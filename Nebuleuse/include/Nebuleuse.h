@@ -78,23 +78,26 @@ namespace Neb{
 
 		///Start Nebuleuse, true if service is avialable
 		bool Init();
-		bool Connect(std::string username, std::string password);
+		void Connect(std::string username, std::string password);
+		void ProceedConnection();
 		void Disconnect(bool fireCallback = false);
 
 		///Return the current state of Nebuleuse
-		std::string getUserName() { return _Username; }
-		std::string getPassword() { return _Password; }
-		std::string getHost() { return _HostName; };
-		std::string GetSessionID() { return _SessionID; };
-		std::string GetSubMessage() { return _Motd; }
+		std::string getUserName()     { return _Username; }
+		std::string getPassword()     { return _Password; }
+		std::string getHost()         { return _HostName; };
+		std::string GetSessionID()    { return _SessionID; };
+		std::string GetSubMessage()   { return _Motd; }
+		int         GetVersion()      { return _Version; }
+		int         GetServerVersion(){ return _ServerVersion; }
 
 		NebuleuseUserRank GetUserRank() { return _UserRank; }
-		bool IsBanned() { return (_UserRank == NEBULEUSE_USER_RANK_BANNED); }
-		bool IsUnavailable() { return GetState() == NEBULEUSE_NOTCONNECTED; }
-		bool IsOutDated() { return (LastError == NEBULEUSE_ERROR_OUTDATED); }
+		bool IsBanned()      { return (_UserRank == NEBULEUSE_USER_RANK_BANNED); }
+		bool IsUnavailable() { return (GetState() == NEBULEUSE_NOTCONNECTED || GetState() == NEBULEUSE_DISABLED); }
+		bool IsOutDated()    { return (LastError == NEBULEUSE_ERROR_OUTDATED); }
 		void SetState(NebuleuseState state){ _State = state; }
-		int GetState(){ return _State; }
-		void SetOutDated() { LastError = NEBULEUSE_ERROR_OUTDATED; };
+		int  GetState()      { return _State; }
+		void SetOutDated()   { LastError = NEBULEUSE_ERROR_OUTDATED; };
 
 		std::string CreateUrl(std::string path);
 
@@ -137,14 +140,16 @@ namespace Neb{
 
 		//Parser
 		void Parse_Status(std::string);
-		void Parse_Connect(std::string);
+		bool Parse_Connect(std::string);
 		void Parse_UserInfos(std::string);
 		void Parse_Errors(std::string);
 	private:
 		void FinishConnect();
 
-		void SendAchievement(Achievement ach);
-		void SendStat(UserStat stat);
+		void SendAchievements();
+		void SendStats();
+		void SendUnsentAchievements();
+		void SendUnsentStats();
 
 		//Callbacks
 		void(*_NebuleuseError_Callback)(NebuleuseError, std::string Msg);
@@ -161,7 +166,7 @@ namespace Neb{
 		//Talker
 		void Talk_GetServiceStatus();
 		void Talk_Connect(std::string username, std::string password);
-		void Talk_GetUserInfo();
+		void Talk_GetUserInfos();
 		void Talk_SendComplexStats(std::string data);
 		void Talk_SendAchievementProgress(std::string data);
 		void Talk_SendStatsUpdate(std::string stats);
@@ -169,8 +174,8 @@ namespace Neb{
 
 		//Parser
 		std::string Parse_CreateComplexStatJson();
-		std::string Parse_CreateAchievementUpdateJson(Achievement ach);
-		std::string Parse_CreateStatUpdateJson(UserStat stat);
+		std::string Parse_CreateChangedAchievementsJson();
+		std::string Parse_CreateChangedStatsJson();
 		
 		void UpdateAchievement(int i, int progress);
 	public:
@@ -180,6 +185,7 @@ namespace Neb{
 	private:
 		std::string _HostName;
 		unsigned int _Version;
+		unsigned int _ServerVersion;
 		std::string _Username;
 		std::string _Password;
 		std::string _Motd;

@@ -21,19 +21,24 @@ namespace Neb{
 
 		neb->Parse_UserInfos(res);
 	}
+	void Nebuleuse::Talk_GetUserInfos(){
+		thread thre(getUserInfos, this);
+		thre.detach();
+	}
+	
 	void connect(Nebuleuse *neb, string username, string password){
 		neb->_Curl->Lock();
 		neb->_Curl->addPost("username", username);
 		neb->_Curl->addPost("password", password);
 		string res = neb->_Curl->fetchPage(neb->CreateUrl("/connect"), true);
-		neb->Parse_Connect(res); // We need to parse the reponse before unlocking curl
 		neb->_Curl->Unlock();
+
+		if(neb->Parse_Connect(res))
+			neb->ProceedConnection();
 	}
 	void Nebuleuse::Talk_Connect(string username, string password){
 		thread thre(connect, this, username, password);
 		thre.detach();
-		thread thre2(getUserInfos, this);
-		thre2.detach();
 	}
 
 	void sendComplexStats(Nebuleuse * neb, string data){

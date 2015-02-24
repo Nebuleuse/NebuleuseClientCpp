@@ -11,13 +11,19 @@ namespace Neb{
 	void Nebuleuse::SetUserStats(std::string name, int value){
 		for (size_t i = 0; i < _UserStats.size(); i++) {
 			if (_UserStats[i].Name == name){
-				_UserStats[i].Value = value;
-				SendStat(_UserStats[i]);
+				if(_UserStats[i].Value != value){
+					_UserStats[i].Value = value;
+					SendStat();
+				}
+				return;
 			}
 		}
 	}
-	void Nebuleuse::SendStat(UserStat stat){
-		std::string msg = Parse_CreateStatUpdateJson(stat);
+	void Nebuleuse::SendStats(){
+		if (IsUnavailable())
+			return;
+
+		std::string msg = Parse_CreateChangedStatsJson();
 		Talk_SendStatsUpdate(msg);
 	}
 

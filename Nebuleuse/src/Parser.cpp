@@ -3,6 +3,11 @@
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
 
+#define ISJSONEXIST(x) doc.HasMember(x)
+#define ISJSONVALIDINT(x) ISJSONEXIST(x) && doc[x].isInt()
+#define ISJSONVALIDUINT(x) ISJSONEXIST(x) && doc[x].isUint()
+#define ISJSONVALIDBOOL(x) ISJSONEXIST(x) && doc[x].isBool()
+#define ISJSONVALIDSTRING(x) ISJSONEXIST(x) && doc[x].isString()
 #define PARSEANDCHECK(x)	if (doc.Parse(x.c_str()).HasParseError()){\
 								return ThrowError(NEBULEUSE_ERROR_PARSEFAILED);\
 							}\
@@ -28,49 +33,52 @@ namespace Neb{
 		Document doc;
 		PARSEANDCHECK(data)
 
-		if (doc.HasMember("Maintenance") && doc["Maintenance"].IsBool()){
+		if (ISJSONVALIDBOOL("Maintenance")){
 			if (doc["Maintenance"].GetBool())
 				return ThrowError(NEBULEUSE_ERROR_MAINTENANCE);
 		}
-		if (doc.HasMember("NebuleuseVersion") && doc["NebuleuseVersion"].IsInt()){
+		if (ISJSONVALIDINT("NebuleuseVersion")){
 			if (doc["NebuleuseVersion"].GetInt() > NEBULEUSEVERSION)
 				return ThrowError(NEBULEUSE_ERROR_OUTDATED);
 		}
-		if (doc.HasMember("GameVersion") && doc["GameVersion"].IsUint()){
-			if (doc["GameVersion"].GetUint() > _Version)
+		if (ISJSONVALIDUINT("GameVersion")){
+			if (doc["GameVersion"].GetUint() > _Version){
+				_ServerVersion = doc["GameVersion"].GetUint();
 				return ThrowError(NEBULEUSE_ERROR_OUTDATED);
+			}
 		}
-		if (doc.HasMember("Motd") && doc["Motd"].IsString()){
+		if (ISJSONVALIDSTRING("Motd")){
 			_Motd = doc["Motd"].GetString();
 		}
 		
 		return;
 	}
-	void Nebuleuse::Parse_Connect(std::string data){
+	bool Nebuleuse::Parse_Connect(std::string data){
 		Document doc;
 		PARSEANDCHECK(data)
 
-		if (!doc.HasMember("SessionId") || !doc["SessionId"].IsString()){
+		if (!ISJSONVALIDSTRING("SessionId")){
 			return ThrowError(NEBULEUSE_ERROR_PARSEFAILED);
 		}
 		_SessionID = doc["SessionId"].GetString();
 
-		return;
+		return true;
 	}
 	void Nebuleuse::Parse_UserInfos(std::string data){
 		Document doc;
 		PARSEANDCHECK(data)
 
-		if (doc.HasMember("Rank")){
+		if (ISJSONVALIDINT("Rank")){
 			_UserRank = static_cast<NebuleuseUserRank>(doc["Rank"].GetInt());
 		}
 
-		if (doc.HasMember("Avatar")){
+		if (ISJSONVALIDSTRING("Avatar")){
 			_AvatarUrl = doc["Avatar"].GetString();
 		}
 
-		if (doc.HasMember("Achievements"))
+		if (doc.HasMember("Achievements") && doc["Achievements"].isArray())
 		{
+			_Achievements.clear();
 			const Value& achievements = doc["Achievements"];
 			int AchNbr = 0;
 			for (rapidjson::SizeType i = 0; i < achievements.Size(); i++)
@@ -89,8 +97,9 @@ namespace Neb{
 				}
 			}
 		}
-		if (doc.HasMember("Stats"))
+		if (doc.HasMember("Stats") && doc["Stats"].isArray())
 		{
+			_UserStats.clear();
 			const Value& stats = doc["Stats"];
 			for (rapidjson::SizeType i = 0; i < stats.Size(); i++)
 			{
@@ -135,36 +144,51 @@ namespace Neb{
 
 		return buffer.GetString();
 	}
-	std::string Nebuleuse::Parse_CreateAchievementUpdateJson(Achievement ach){
+	std::string Nebuleuse::Parse_CreateChangedStatsJson(){
 		Document doc;
 		doc.SetObject();
 		Document::AllocatorType& allocator = doc.GetAllocator();
-		Value AllAch(kArrayType);
-		
-		Value Ach(kObjectType);
-		Ach.AddMember("Id", ach.Id, allocator);
-		Ach.AddMember("Value", ach.Progress, allocator);
-		AllAch.PushBack(Ach, allocator);
-		
-		doc.AddMember("Achievements", AllAch, allocator);
+		Value AllStats(kArrayType);
+
+		for (int i = 0; i < _UserStats; ++i) {
+			if(!_UserStats[i].Changed)
+				continue;
+
+			Value Stat(kObjectType);
+
+			Stat.AddMember("Name", STDTOJSONVAL(_UserStats[i].Name), allocator);
+			Stat.AddMember("Value", _UserStats[i].Value, allocator);
+			
+			AllStats.PushBack(Stat, allocator);
+		}
+
+		doc.AddMember("Stats", AllStats, allocator);
 		StringBuffer buffer;
 		PrettyWriter<StringBuffer> writer(buffer);
 		doc.Accept(writer);
 
 		return buffer.GetString();
 	}
-	std::string Nebuleuse::Parse_CreateStatUpdateJson(UserStat stat){
+
+	std::string Nebuleuse::Parse_CreateChangedAchievementsJson(){
 		Document doc;
 		doc.SetObject();
 		Document::AllocatorType& allocator = doc.GetAllocator();
-		Value AllStats(kArrayType);
+		Value AllAch(kArrayType);
+		
+		for (int i = 0; i < _Achievements.size(); ++i)	{
+			if(!_Achievements[i].Changed)
+				continue;
 
-		Value Stat(kObjectType);
-		Stat.AddMember("Name", STDTOJSONVAL(stat.Name), allocator);
-		Stat.AddMember("Value", stat.Value, allocator);
-		AllStats.PushBack(Stat, allocator);
+			Value Ach(kObjectType);
 
-		doc.AddMember("Stats", AllStats, allocator);
+			Ach.AddMember("Id", _Achievements[i].Id, allocator);
+			Ach.AddMember("Value", _Achievements[i].Progress, allocator);
+
+			AllAch.PushBack(Ach, allocator);		
+		}
+		
+		doc.AddMember("Achievements", AllAch, allocator);
 		StringBuffer buffer;
 		PrettyWriter<StringBuffer> writer(buffer);
 		doc.Accept(writer);

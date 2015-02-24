@@ -20,8 +20,7 @@ namespace Neb{
 		for (size_t i = 0; i < _Achievements.size(); i++) {
 			if (_Achievements[i].Id == ach.Id){
 				_Achievements[i] = ach;
-				SendAchievement(_Achievements[i]);
-				
+				UpdateAchievement(i, ach.ProgressMax)
 			}
 		}
 	}
@@ -61,24 +60,19 @@ namespace Neb{
 		if(_Achievements[i].IsCompleted() || _Achievements[i].Progress == progress)
 			return;
 					
-		if(progress == _Achievements[i].ProgressMax)
+		if(progress >= _Achievements[i].ProgressMax)
 			if (_AchievementEarned_CallBack)
 				_AchievementEarned_CallBack(_Achievements[i].Name);
 				
-		_Achievements[i].Progress = progress;
-		SendAchievement(_Achievements[i]);
+		_Achievements[i].Progress = min(progress, _Achievements[i].ProgressMax);
+		_Achievements[i].Changed = true;
+		SendAchievements();
 	}
-	void Nebuleuse::SendAchievement(Achievement ach){
-		if (IsUnavailable()){
-			for (size_t i = 0; i < _Achievements.size(); i++) {
-				if (_Achievements[i].Id == ach.Id){
-					_Achievements[i].Changed = true;
-				}
-			}
+	void Nebuleuse::SendAchievements(){
+		if (IsUnavailable())
 			return;
-		}
 		
-		std::string msg = Parse_CreateAchievementUpdateJson(ach);
+		std::string msg = Parse_CreateChangedAchievementsJson();
 		Talk_SendAchievementProgress(msg);
 	}
 }

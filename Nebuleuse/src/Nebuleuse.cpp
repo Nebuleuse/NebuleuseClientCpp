@@ -24,7 +24,7 @@ namespace Neb{
 		return LastError == NEBULEUSE_ERROR_NONE;
 	}
 
-	bool Nebuleuse::Connect(std::string username, std::string password){
+	void Nebuleuse::Connect(std::string username, std::string password){
 		if (_Username != username){ //New user, wipe older infos
 			_Achievements.clear();
 			_UserStats.clear();
@@ -34,10 +34,19 @@ namespace Neb{
 		_Username = username;
 		_Password = password;
 		Talk_Connect(username, password);
-		return LastError == NEBULEUSE_ERROR_NONE;
+	}
+	void Nebuleuse::ProceedConnection(){
+		SetState(NEBULEUSE_CONNECTED); //We got a valid SessionId
+
+		//If we got disconnected before, changed data may need to be sent
+		SendAchievements();
+		SendStats();
+		SendComplexStats();
+
+		//Get fresh user Infos
+		Talk_GetUserInfos();
 	}
 	void Nebuleuse::FinishConnect(){
-		SetState(NEBULEUSE_CONNECTED);
 		if (_Connect_Callback)
 			_Connect_Callback(_State == NEBULEUSE_CONNECTED);
 	}
@@ -54,13 +63,14 @@ namespace Neb{
 	void Nebuleuse::ThrowError(NebuleuseError e, std::string Msg){
 		if (e == NEBULEUSE_ERROR_NONE)
 			return;
-		
+		else if (e == NEBULEUSE_ERROR_DISCONNECTED)
+			Disconnect();
+		else if(e == NEBULEUSE_ERROR_MAINTENANCE || e == NEBULEUSE_ERROR_OUTDATED)
+			SetState(NEBULEUSE_DISABLED);
+
 		LastError = e;
 		if (_NebuleuseError_Callback)
 			_NebuleuseError_Callback(e, Msg);
-
-		if (e == NEBULEUSE_ERROR_DISCONNECTED)
-			Disconnect();
 	}
 
 	void Nebuleuse::Log(std::string msg){
