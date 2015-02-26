@@ -1,4 +1,4 @@
-solution "Nebuleuse"
+solution "NebuleuseClient"
    configurations { "Debug", "Release" }
 
 project "Nebuleuse"
@@ -31,6 +31,7 @@ project "Tester"
    includedirs { "include" }
    files { "Tester/*.cpp" }
    links { "Nebuleuse" }
+   libdirs { "lib/"}
    
    filter "configurations:Debug"
       links { "libcurl_a_debug" }
