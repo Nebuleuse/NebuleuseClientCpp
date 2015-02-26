@@ -13,7 +13,7 @@ namespace Neb{
 			if (_UserStats[i].Name == name){
 				if(_UserStats[i].Value != value){
 					_UserStats[i].Value = value;
-					SendStat();
+					SendStats();
 				}
 				return;
 			}
