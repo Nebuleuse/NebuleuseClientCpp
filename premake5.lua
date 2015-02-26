@@ -4,14 +4,14 @@ solution "Nebuleuse"
 project "Nebuleuse"
    kind "StaticLib"
    language "C++"
-   targetdir "Nebuleuse/lib/%{cfg.buildcfg}"
+   targetdir "lib/%{cfg.buildcfg}"
    
-   includedirs { "Nebuleuse/include", 
-				 "Nebuleuse/curl/builds/%{cfg.buildcfg}/include",
-				 "Nebuleuse/rapidjson/include"}
-   files { "Nebuleuse/src/**.cpp", "Nebuleuse/include/**.h" }
+   includedirs { "include", 
+				 "curl/builds/%{cfg.buildcfg}/include",
+				 "rapidjson/include"}
+   files { "src/**.cpp", "include/**.h" }
    
-   libdirs { "Nebuleuse/curl/builds/%{cfg.buildcfg}/lib" }
+   libdirs { "curl/builds/%{cfg.buildcfg}/lib" }
    
    defines "CURL_STATICLIB"
    
@@ -26,9 +26,9 @@ project "Nebuleuse"
 project "Tester"
    kind "ConsoleApp"
    language "C++"
-   targetdir "Testes/bin/"
+   targetdir "Tester/bin/"
    
-   includedirs { "Nebuleuse/include" }
+   includedirs { "include" }
    files { "Tester/*.cpp" }
    links { "Nebuleuse" }
    
