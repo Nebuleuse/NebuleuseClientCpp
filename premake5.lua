@@ -15,8 +15,10 @@ project "Nebuleuse"
    
    defines "CURL_STATICLIB"
    
+   flags{ "StaticRuntime" }
+   
    filter "configurations:Debug"
-      defines { "DEBUG" }
+      defines { "DEBUG", "_ITERATOR_DEBUG_LEVEL=2" }
       flags { "Symbols" }
 
    filter "configurations:Release"
