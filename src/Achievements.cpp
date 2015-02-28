@@ -1,4 +1,5 @@
 #include "Nebuleuse.h"
+#include <algorithm>
 
 namespace Neb{
 	unsigned int Nebuleuse::GetAchievementCount(){
@@ -9,22 +10,24 @@ namespace Neb{
 			if (_Achievements[i].Name == name)
 				return _Achievements[i];
 		}
+		return Achievement();
 	}
 	Achievement Nebuleuse::GetAchievement(int id){
 		for (size_t i = 0; i < _Achievements.size(); i++) {
 			if (_Achievements[i].Id == id)
 				return _Achievements[i];
 		}
+		return Achievement();
 	}
 	void Nebuleuse::SetAchievement(Achievement ach){
 		for (size_t i = 0; i < _Achievements.size(); i++) {
 			if (_Achievements[i].Id == ach.Id){
 				_Achievements[i] = ach;
-				UpdateAchievement(i, ach.ProgressMax)
+				UpdateAchievement(i, ach.ProgressMax);
 			}
 		}
 	}
-	void Nebuleuse::UpdateAchievementProgress(std::string name, int progress){
+	void Nebuleuse::UpdateAchievementProgress(std::string name, unsigned int progress){
 		for (size_t i = 0; i < _Achievements.size(); i++) {
 			if (_Achievements[i].Name == name){
 				UpdateAchievement(i, progress);
@@ -32,7 +35,7 @@ namespace Neb{
 			}
 		}
 	}
-	void Nebuleuse::UpdateAchievementProgress(int id, int progress){
+	void Nebuleuse::UpdateAchievementProgress(int id, unsigned int progress){
 		for (size_t i = 0; i < _Achievements.size(); i++) {
 			if (_Achievements[i].Id == id){
 				UpdateAchievement(i, progress);
@@ -56,7 +59,7 @@ namespace Neb{
 			}
 		}
 	}
-	void Nebuleuse::UpdateAchievement(int i, int progress){
+	void Nebuleuse::UpdateAchievement(int i, unsigned int progress){
 		if(_Achievements[i].IsCompleted() || _Achievements[i].Progress == progress)
 			return;
 					
@@ -64,7 +67,7 @@ namespace Neb{
 			if (_AchievementEarned_CallBack)
 				_AchievementEarned_CallBack(_Achievements[i].Name);
 				
-		_Achievements[i].Progress = min(progress, _Achievements[i].ProgressMax);
+		_Achievements[i].Progress = progress > _Achievements[i].ProgressMax ? _Achievements[i].ProgressMax : progress;
 		_Achievements[i].Changed = true;
 		SendAchievements();
 	}

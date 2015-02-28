@@ -17,7 +17,12 @@ namespace Neb{
 		_AchievementEarned_CallBack = NULL;
 	}
 
-	Nebuleuse::~Nebuleuse() {}
+	Nebuleuse::~Nebuleuse() {
+		_Achievements.clear();
+		_UserStats.clear();
+		_CStats.clear();
+		delete _Curl;
+	}
 
 	bool Nebuleuse::Init(){
 		Talk_GetServiceStatus();

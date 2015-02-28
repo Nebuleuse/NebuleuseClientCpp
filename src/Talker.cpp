@@ -9,7 +9,7 @@ namespace Neb{
 		_Curl->Lock();
 		string res = _Curl->fetchPage(CreateUrl("/status"));
 		_Curl->Unlock();
-
+		Log(res);
 		Parse_Status(res);
 	}
 

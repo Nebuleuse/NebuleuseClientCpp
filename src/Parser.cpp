@@ -3,11 +3,6 @@
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
 
-#define ISJSONEXIST(x) doc.HasMember(x)
-#define ISJSONVALIDINT(x) ISJSONEXIST(x) && doc[x].isInt()
-#define ISJSONVALIDUINT(x) ISJSONEXIST(x) && doc[x].isUint()
-#define ISJSONVALIDBOOL(x) ISJSONEXIST(x) && doc[x].isBool()
-#define ISJSONVALIDSTRING(x) ISJSONEXIST(x) && doc[x].isString()
 #define PARSEANDCHECK(x)	if (doc.Parse(x.c_str()).HasParseError()){\
 								return ThrowError(NEBULEUSE_ERROR_PARSEFAILED);\
 							}\
@@ -33,21 +28,21 @@ namespace Neb{
 		Document doc;
 		PARSEANDCHECK(data)
 
-		if (ISJSONVALIDBOOL("Maintenance")){
+			if (doc.HasMember("Maintenance") && doc["Maintenance"].IsBool()){
 			if (doc["Maintenance"].GetBool())
 				return ThrowError(NEBULEUSE_ERROR_MAINTENANCE);
 		}
-		if (ISJSONVALIDINT("NebuleuseVersion")){
+		if (doc.HasMember("NebuleuseVersion") && doc["NebuleuseVersion"].IsInt()){
 			if (doc["NebuleuseVersion"].GetInt() > NEBULEUSEVERSION)
 				return ThrowError(NEBULEUSE_ERROR_OUTDATED);
 		}
-		if (ISJSONVALIDUINT("GameVersion")){
+		if (doc.HasMember("GameVersion") && doc["GameVersion"].IsUint()){
 			if (doc["GameVersion"].GetUint() > _Version){
 				_ServerVersion = doc["GameVersion"].GetUint();
 				return ThrowError(NEBULEUSE_ERROR_OUTDATED);
 			}
 		}
-		if (ISJSONVALIDSTRING("Motd")){
+		if (doc.HasMember("Motd") && doc["Motd"].IsString()){
 			_Motd = doc["Motd"].GetString();
 		}
 		
@@ -57,7 +52,7 @@ namespace Neb{
 		Document doc;
 		PARSEANDCHECK(data)
 
-		if (!ISJSONVALIDSTRING("SessionId")){
+		if (!doc.HasMember("SessionId") && doc["SessionId"].IsString()){
 			return ThrowError(NEBULEUSE_ERROR_PARSEFAILED);
 		}
 		_SessionID = doc["SessionId"].GetString();
@@ -68,15 +63,15 @@ namespace Neb{
 		Document doc;
 		PARSEANDCHECK(data)
 
-		if (ISJSONVALIDINT("Rank")){
+			if (doc.HasMember("Rank") && doc["Rank"].IsInt()){
 			_UserRank = static_cast<NebuleuseUserRank>(doc["Rank"].GetInt());
 		}
 
-		if (ISJSONVALIDSTRING("Avatar")){
+		if (doc.HasMember("Avatar") && doc["Avatar"].IsString()){
 			_AvatarUrl = doc["Avatar"].GetString();
 		}
 
-		if (doc.HasMember("Achievements") && doc["Achievements"].isArray())
+		if (doc.HasMember("Achievements") && doc["Achievements"].IsArray())
 		{
 			_Achievements.clear();
 			const Value& achievements = doc["Achievements"];
@@ -97,7 +92,7 @@ namespace Neb{
 				}
 			}
 		}
-		if (doc.HasMember("Stats") && doc["Stats"].isArray())
+		if (doc.HasMember("Stats") && doc["Stats"].IsArray())
 		{
 			_UserStats.clear();
 			const Value& stats = doc["Stats"];
@@ -121,11 +116,11 @@ namespace Neb{
 		doc.SetObject();
 		Document::AllocatorType& allocator = doc.GetAllocator();
 		Value AllStats(kArrayType);
-		for (int i = 0; i < _CStats.size(); i++) // Insert all the different stats we have
+		for (unsigned int i = 0; i < _CStats.size(); i++) // Insert all the different stats we have
 		{
 			Value Vals(kArrayType), ComplexStat(kObjectType);
 			ComplexStat.AddMember("Name", STDTOJSONVAL(_CStats[i].Name), allocator);
-			for (int j = 0; j < _CStats[i].Values.size(); j++)
+			for (unsigned int j = 0; j < _CStats[i].Values.size(); j++)
 			{
 				Value St(kObjectType);
 				St.AddMember("Name", STDTOJSONVAL(_CStats[i].Values[j].Name), allocator);
@@ -150,7 +145,7 @@ namespace Neb{
 		Document::AllocatorType& allocator = doc.GetAllocator();
 		Value AllStats(kArrayType);
 
-		for (int i = 0; i < _UserStats; ++i) {
+		for (unsigned int i = 0; i < _UserStats.size(); ++i) {
 			if(!_UserStats[i].Changed)
 				continue;
 
@@ -176,7 +171,7 @@ namespace Neb{
 		Document::AllocatorType& allocator = doc.GetAllocator();
 		Value AllAch(kArrayType);
 		
-		for (int i = 0; i < _Achievements.size(); ++i)	{
+		for (unsigned int i = 0; i < _Achievements.size(); ++i)	{
 			if(!_Achievements[i].Changed)
 				continue;
 

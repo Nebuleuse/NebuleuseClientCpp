@@ -29,8 +29,7 @@ void main(){
 	ach.Progress = ach.Progress + 1;
 	neb->SetAchievement(ach);
 
-	Neb::ComplexStat st;
-	st.Name = "kills";
+	Neb::ComplexStat st("kills");
 	st.AddValue("x", std::to_string(5));
 	st.AddValue("y", std::to_string(5));
 	st.AddValue("z", std::to_string(5));

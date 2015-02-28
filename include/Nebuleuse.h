@@ -118,8 +118,8 @@ namespace Neb{
 		///Set the specified achievement data
 		void SetAchievement(Achievement data);
 		///Update the Progress of this achievement
-		void UpdateAchievementProgress(std::string Name, int Progress);
-		void UpdateAchievementProgress(int index, int Progress);
+		void UpdateAchievementProgress(std::string Name, unsigned int Progress);
+		void UpdateAchievementProgress(int index, unsigned int Progress);
 		///Earn the achievement
 		void UnlockAchievement(std::string Name);
 		void UnlockAchievement(int index);
@@ -141,7 +141,7 @@ namespace Neb{
 		void ProceedConnection();
 		void FinishConnect();
 
-		void UpdateAchievement(int i, int progress);
+		void UpdateAchievement(int i, unsigned int progress);
 
 		void SendAchievements();
 		void SendStats();
@@ -171,11 +171,11 @@ namespace Neb{
 		//Talker Threads
 		void Thread_GetServiceStatus();
 		void Thread_Connect(std::string username, std::string password);
-		void Theard_GetUserInfos();
-		void Theard_SendComplexStats(std::string data);
-		void Theard_SendAchievementProgress(std::string data);
-		void Theard_SendStatsUpdate(std::string stats);
-		void Theard_GetAvatar();
+		void Thread_GetUserInfos();
+		void Thread_SendComplexStats(std::string data);
+		void Thread_SendAchievementProgress(std::string data);
+		void Thread_SendStatsUpdate(std::string stats);
+		void Thread_GetAvatar();
 
 		//Parser
 		std::string Parse_CreateComplexStatJson();
