@@ -95,10 +95,10 @@ namespace Neb{
 		NebuleuseUserRank GetUserRank() { return _UserRank; }
 		bool IsBanned()      { return (_UserRank == NEBULEUSE_USER_RANK_BANNED); }
 		bool IsUnavailable() { return (GetState() == NEBULEUSE_NOTCONNECTED || GetState() == NEBULEUSE_DISABLED); }
-		bool IsOutDated()    { return (LastError == NEBULEUSE_ERROR_OUTDATED); }
+		bool IsOutDated()    { return (_LastError == NEBULEUSE_ERROR_OUTDATED); }
 		void SetState(NebuleuseState state){ _State = state; }
 		int  GetState()      { return _State; }
-		void SetOutDated()   { LastError = NEBULEUSE_ERROR_OUTDATED; };
+		void SetOutDated()   { _LastError = NEBULEUSE_ERROR_OUTDATED; };
 
 		//Stats
 		///Get the user stats
@@ -186,10 +186,9 @@ namespace Neb{
 		void Parse_UserInfos(std::string);
 		void Parse_Errors(std::string);
 
-	public:
-		int LastError;
-		CurlWrap *_Curl;
 	private:
+		CurlWrap *_Curl;
+
 		std::string _HostName;
 		unsigned int _Version;
 		unsigned int _ServerVersion;
@@ -198,6 +197,7 @@ namespace Neb{
 		std::string _Motd;
 		NebuleuseUserRank _UserRank;
 		NebuleuseState _State;
+		NebuleuseError _LastError;
 		std::string _SessionID;
 		std::string _AvatarUrl;
 

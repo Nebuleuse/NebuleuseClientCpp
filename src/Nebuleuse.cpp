@@ -7,7 +7,7 @@ namespace Neb{
 		_HostName = addr;
 		_Curl = new CurlWrap();
 		SetState(NEBULEUSE_NOTCONNECTED);
-		LastError = NEBULEUSE_ERROR_NONE;
+		_LastError = NEBULEUSE_ERROR_NONE;
 
 		_Version = version;
 
@@ -26,7 +26,7 @@ namespace Neb{
 
 	bool Nebuleuse::Init(){
 		Talk_GetServiceStatus();
-		return LastError == NEBULEUSE_ERROR_NONE;
+		return _LastError == NEBULEUSE_ERROR_NONE;
 	}
 
 	void Nebuleuse::Connect(std::string username, std::string password){
@@ -73,7 +73,7 @@ namespace Neb{
 		else if(e == NEBULEUSE_ERROR_MAINTENANCE || e == NEBULEUSE_ERROR_OUTDATED)
 			SetState(NEBULEUSE_DISABLED);
 
-		LastError = e;
+		_LastError = e;
 		if (_NebuleuseError_Callback)
 			_NebuleuseError_Callback(e, Msg);
 	}
