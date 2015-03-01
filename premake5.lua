@@ -33,7 +33,10 @@ project "Tester"
    includedirs { "include" }
    files { "Tester/*.cpp" }
    links { "Nebuleuse" }
-   libdirs { "lib/"}
+   libdirs { "lib/%{cfg.buildcfg}"}
+   
+   flags{ "StaticRuntime" }
+   
    
    filter "configurations:Debug"
       links { "libcurl_a_debug" }
