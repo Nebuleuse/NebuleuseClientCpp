@@ -1,5 +1,6 @@
 solution "NebuleuseClient"
    configurations { "Debug", "Release" }
+   platforms { "Win32", "Win64" }
 
 project "Nebuleuse"
    kind "StaticLib"
@@ -14,8 +15,16 @@ project "Nebuleuse"
    libdirs { "curl/builds/%{cfg.buildcfg}/lib" }
    
    defines "CURL_STATICLIB"
-   
-   flags{ "StaticRuntime" }
+	
+	filter { "platforms:Win32" }
+		targetname "Nebuleuse.x86"
+		system "Windows"
+		architecture "x32"
+
+	filter { "platforms:Win64" }
+		targetname "Nebuleuse.x64"
+		system "Windows"
+		architecture "x64"
    
    filter "configurations:Debug"
       defines { "DEBUG", "_ITERATOR_DEBUG_LEVEL=2" }
@@ -35,15 +44,29 @@ project "Tester"
    links { "Nebuleuse" }
    libdirs { "lib/%{cfg.buildcfg}"}
    
-   flags{ "StaticRuntime" }
+   defines "CURL_STATICLIB"
    
+   	filter { "platforms:Win32" }
+		system "Windows"
+		architecture "x32"
+
+	filter { "platforms:Win64" }
+		system "Windows"
+		architecture "x64"
    
    filter "configurations:Debug"
-      links { "libcurl_a_debug" }
       defines { "DEBUG" }
       flags { "Symbols" }
 
    filter "configurations:Release"
-      links { "libcurl_a" }
       defines { "NDEBUG" }
       optimize "On"
+	  
+	filter { "configurations:Release", "platforms:Win32"}
+		links { "libcurl_a.x86" }
+	filter { "configurations:Release", "platforms:Win64"}
+		links { "libcurl_a.x64" }
+	filter { "configurations:Debug", "platforms:Win32"}
+		links { "libcurl_a_debug.x86" }
+	filter { "configurations:Debug", "platforms:Win64"}
+		links { "libcurl_a_debug.x64" }
