@@ -2,21 +2,13 @@
 
 namespace Neb{
 	int Nebuleuse::GetUserStats(std::string name){
-		for (size_t i = 0; i < _UserStats.size(); i++) {
-			if (_UserStats[i].Name == name)
-				return _UserStats[i].Value;
-		}
-		return 0;
+		return _UserStats[name].Value;
 	}
 	void Nebuleuse::SetUserStats(std::string name, int value){
-		for (size_t i = 0; i < _UserStats.size(); i++) {
-			if (_UserStats[i].Name == name){
-				if(_UserStats[i].Value != value){
-					_UserStats[i].Value = value;
-					SendStats();
-				}
-				return;
-			}
+		if (_UserStats[name].Value != value){
+			_UserStats[name].Value = value;
+			_UserStats[name].Changed = true;
+			SendStats();
 		}
 	}
 	void Nebuleuse::SendStats(){
@@ -28,7 +20,21 @@ namespace Neb{
 	}
 
 	void Nebuleuse::AddComplexStat(ComplexStat stat){
-		_CStats.push_back(stat);
+		if (VerifyComplexStat(stat))
+			_CStats.push_back(stat);
+		else
+			ThrowError(NEBULEUSE_ERROR, "Could not add complex stats, verification failed!");
+	}
+	bool Nebuleuse::VerifyComplexStat(ComplexStat stat){
+		if (_CStatsTableInfos.count(stat.Name) == 0)
+			return false;
+		ComplexStatsTableInfos infos = _CStatsTableInfos[stat.Name];
+		//Iterate the fields we were given and check if they are present in the ComplexStatsTableInfo.
+		for (map<string, string>::iterator it = stat.Values.begin(); it != stat.Values.end(); ++it){
+			if (find(infos.Fields.begin(), infos.Fields.end(), it->first) == infos.Fields.end())
+				return false;
+		}
+		return true;
 	}
 
 	void Nebuleuse::SendComplexStats(){

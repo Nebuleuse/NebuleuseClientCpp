@@ -19,16 +19,16 @@
 namespace Neb{
 	using namespace rapidjson;
 
-	void Nebuleuse::Parse_Errors(std::string data){
+	void Nebuleuse::Parse_Errors(string data){
 		Document doc;
 		PARSEANDCHECK(data)
 	}
 
-	void Nebuleuse::Parse_Status(std::string data){
+	void Nebuleuse::Parse_Status(string data){
 		Document doc;
 		PARSEANDCHECK(data)
 
-			if (doc.HasMember("Maintenance") && doc["Maintenance"].IsBool()){
+		if (doc.HasMember("Maintenance") && doc["Maintenance"].IsBool()){
 			if (doc["Maintenance"].GetBool())
 				return ThrowError(NEBULEUSE_ERROR_MAINTENANCE);
 		}
@@ -42,13 +42,25 @@ namespace Neb{
 				return ThrowError(NEBULEUSE_ERROR_OUTDATED);
 			}
 		}
-		if (doc.HasMember("Motd") && doc["Motd"].IsString()){
-			_Motd = doc["Motd"].GetString();
+		if (doc.HasMember("ComplexStatsTable") && doc["ComplexStatsTable"].IsArray()){
+			const Value &CSTable = doc["ComplexStatsTable"];
+			for (rapidjson::SizeType i = 0; i < CSTable.Size(); i++) {
+				const Value& CST = CSTable[i];
+				if (CST.HasMember("Name") && CST.HasMember("Fields") && CST.HasMember("AutoCount")){
+					ComplexStatsTableInfos infos;
+					infos.Name = CST["Name"].GetString();
+					infos.AutoCount = CST["AutoCount"].GetBool();
+					for (rapidjson::SizeType i = 0; i < CST["Fields"].Size(); i++)	{
+						infos.Fields.push_back(CST["Fields"][i].GetString());
+					}
+					_CStatsTableInfos[CST["Name"].GetString()] = infos;
+				}
+			}
 		}
 		
 		return;
 	}
-	void Nebuleuse::Parse_Connect(std::string data){
+	void Nebuleuse::Parse_Connect(string data){
 		Document doc;
 		PARSEANDCHECK(data)
 
@@ -59,7 +71,7 @@ namespace Neb{
 
 		ProceedConnection();
 	}
-	void Nebuleuse::Parse_UserInfos(std::string data){
+	void Nebuleuse::Parse_UserInfos(string data){
 		Document doc;
 		PARSEANDCHECK(data)
 
@@ -87,7 +99,7 @@ namespace Neb{
 					newAchievement.ProgressMax = Ach["Value"].GetUint();
 					newAchievement.Id = Ach["Id"].GetUint();
 					newAchievement.Changed = false;
-					_Achievements.push_back(newAchievement);
+					_Achievements[newAchievement.Name] = newAchievement;
 					AchNbr++;
 				}
 			}
@@ -105,13 +117,13 @@ namespace Neb{
 					stt.Name = Stat["Name"].GetString();
 					stt.Value = Stat["Value"].GetInt();
 					stt.Changed = false;
-					_UserStats.push_back(stt);
+					_UserStats[stt.Name] = stt;
 				}
 			}
 		}
 		FinishConnect();
 	}
-	std::string Nebuleuse::Parse_CreateComplexStatJson(){
+	string Nebuleuse::Parse_CreateComplexStatJson(){
 		Document doc;
 		doc.SetObject();
 		Document::AllocatorType& allocator = doc.GetAllocator();
@@ -120,11 +132,10 @@ namespace Neb{
 		{
 			Value Vals(kArrayType), ComplexStat(kObjectType);
 			ComplexStat.AddMember("Name", STDTOJSONVAL(_CStats[i].Name), allocator);
-			for (unsigned int j = 0; j < _CStats[i].Values.size(); j++)
-			{
+			for (map<string, string>::iterator it = _CStats[i].Values.begin(); it != _CStats[i].Values.end(); ++it){
 				Value St(kObjectType);
-				St.AddMember("Name", STDTOJSONVAL(_CStats[i].Values[j].Name), allocator);
-				St.AddMember("Value", STDTOJSONVAL(_CStats[i].Values[j].Value), allocator);
+				St.AddMember("Name", STDTOJSONVAL(it->first), allocator);
+				St.AddMember("Value", STDTOJSONVAL(it->second), allocator);
 				Vals.PushBack(St, allocator);
 			}
 			ComplexStat.AddMember("Values", Vals, allocator);
@@ -139,20 +150,20 @@ namespace Neb{
 
 		return buffer.GetString();
 	}
-	std::string Nebuleuse::Parse_CreateChangedStatsJson(){
+	string Nebuleuse::Parse_CreateChangedStatsJson(){
 		Document doc;
 		doc.SetObject();
 		Document::AllocatorType& allocator = doc.GetAllocator();
 		Value AllStats(kArrayType);
 
-		for (unsigned int i = 0; i < _UserStats.size(); ++i) {
-			if(!_UserStats[i].Changed)
+		for (map<string, UserStat>::iterator it = _UserStats.begin(); it != _UserStats.end(); ++it){
+			if (!it->second.Changed)
 				continue;
 
 			Value Stat(kObjectType);
 
-			Stat.AddMember("Name", STDTOJSONVAL(_UserStats[i].Name), allocator);
-			Stat.AddMember("Value", _UserStats[i].Value, allocator);
+			Stat.AddMember("Name", STDTOJSONVAL(it->first), allocator);
+			Stat.AddMember("Value", it->second.Value, allocator);
 			
 			AllStats.PushBack(Stat, allocator);
 		}
@@ -165,22 +176,24 @@ namespace Neb{
 		return buffer.GetString();
 	}
 
-	std::string Nebuleuse::Parse_CreateChangedAchievementsJson(){
+	string Nebuleuse::Parse_CreateChangedAchievementsJson(){
 		Document doc;
 		doc.SetObject();
 		Document::AllocatorType& allocator = doc.GetAllocator();
 		Value AllAch(kArrayType);
 		
-		for (unsigned int i = 0; i < _Achievements.size(); ++i)	{
-			if(!_Achievements[i].Changed)
+		for (map<string, Achievement>::iterator it = _Achievements.begin(); it != _Achievements.end(); ++it){
+			if (!it->second.Changed)
 				continue;
 
 			Value Ach(kObjectType);
 
-			Ach.AddMember("Id", _Achievements[i].Id, allocator);
-			Ach.AddMember("Value", _Achievements[i].Progress, allocator);
+			Ach.AddMember("Id", it->second.Id, allocator);
+			Ach.AddMember("Value", it->second.Progress, allocator);
 
-			AllAch.PushBack(Ach, allocator);		
+			AllAch.PushBack(Ach, allocator);
+
+			it->second.Changed = false;
 		}
 		
 		doc.AddMember("Achievements", AllAch, allocator);

@@ -1,9 +1,12 @@
+#pragma once
 #include <vector>
 #include <string>
+#include <map>
 
 #define NEBULEUSEVERSION 1
 
 class CurlWrap;
+using namespace std;
 
 namespace Neb{
 	enum NebuleuseState
@@ -33,7 +36,7 @@ namespace Neb{
 
 	struct Achievement
 	{
-		std::string Name;
+		string Name;
 		unsigned int Progress;
 		unsigned int ProgressMax;
 		unsigned int Id;
@@ -44,51 +47,47 @@ namespace Neb{
 
 	struct UserStat
 	{
-		std::string Name;
+		string Name;
 		int Value;
 		bool Changed;
 	};
-	struct Stat
-	{
-		Stat(std::string n, std::string v){
-			Name = n;
-			Value = v;
-		}
-		std::string Name;
-		std::string Value;
-	};
 	struct ComplexStat
 	{
-		std::string Name;
-		std::vector<Stat> Values;
-		ComplexStat(std::string n){
+		string Name;
+		map<string, string> Values;
+		ComplexStat(string n){
 			Name = n;
 		}
-		void AddValue(std::string name, std::string value){
-			Values.push_back(Stat(name, value));
+		void AddValue(string name, string value){
+			Values[name] = value;
 		}
+	};
+	struct ComplexStatsTableInfos
+	{
+		string Name;
+		vector<string> Fields;
+		bool AutoCount;
 	};
 
 	class Nebuleuse
 	{
 	public:
 		///Create the Nebuleuse.
-		Nebuleuse(std::string addr, unsigned int version);
+		Nebuleuse(string addr, unsigned int version);
 		~Nebuleuse();
 
 		///Start Nebuleuse, true if service is avialable
 		bool Init();
 		//Connect user
-		void Connect(std::string username, std::string password);
+		void Connect(string username, string password);
 		//Disconnect user
 		void Disconnect(bool fireCallback = false);
 
 		///Return the current state of Nebuleuse
-		std::string getUserName()     { return _Username; }
-		std::string getPassword()     { return _Password; }
-		std::string getHost()         { return _HostName; };
-		std::string GetSessionID()    { return _SessionID; };
-		std::string GetSubMessage()   { return _Motd; }
+		string getUserName()     { return _Username; }
+		string getPassword()     { return _Password; }
+		string getHost()         { return _HostName; };
+		string GetSessionID()    { return _SessionID; };
 		int         GetVersion()      { return _Version; }
 		int         GetServerVersion(){ return _ServerVersion; }
 
@@ -102,9 +101,9 @@ namespace Neb{
 
 		//Stats
 		///Get the user stats
-		int GetUserStats(std::string Name);
+		int GetUserStats(string Name);
 		///Set the user stats
-		void SetUserStats(std::string name, int value);
+		void SetUserStats(string name, int value);
 		
 		//Add the complex stat to the list
 		void AddComplexStat(ComplexStat stat);
@@ -113,35 +112,36 @@ namespace Neb{
 
 		//Achievements
 		///Get the specified achievemnt data
-		Achievement GetAchievement(std::string Name);
+		Achievement GetAchievement(string Name);
 		Achievement GetAchievement(int index);
 		///Set the specified achievement data
-		void SetAchievement(Achievement data);
+		void SetAchievement(string name, Achievement data);
 		///Update the Progress of this achievement
-		void UpdateAchievementProgress(std::string Name, unsigned int Progress);
+		void UpdateAchievementProgress(string Name, unsigned int Progress);
 		void UpdateAchievementProgress(int index, unsigned int Progress);
 		///Earn the achievement
-		void UnlockAchievement(std::string Name);
+		void UnlockAchievement(string Name);
 		void UnlockAchievement(int index);
 		//Get the number of achievements
 		unsigned int GetAchievementCount();
 
 		//Set callbacks
-		void SetLogCallBack(void(*Callback)(std::string));
-		void SetErrorCallBack(void(*Callback)(NebuleuseError, std::string Msg));
+		void SetLogCallBack(void(*Callback)(string));
+		void SetErrorCallBack(void(*Callback)(NebuleuseError, string Msg));
 		//Set Achievement CallBack when one is earned
-		void SetAchievementCallBack(void(*Callback)(std::string name));
+		void SetAchievementCallBack(void(*Callback)(string name));
 		//Set Callback called when connect() finished
 		void SetConnectCallback(void(*Callback)(bool success));
 		//Set Callback called when Nebuleuse is Disconnected
 		void SetDisconnectCallback(void(*Callback)());
 	private:
-		std::string CreateUrl(std::string path);
+		string CreateUrl(string path);
+		bool VerifyComplexStat(ComplexStat stat);
 
 		void ProceedConnection();
 		void FinishConnect();
 
-		void UpdateAchievement(int i, unsigned int progress);
+		void UpdateAchievement(string, unsigned int progress);
 
 		void SendAchievements();
 		void SendStats();
@@ -149,60 +149,59 @@ namespace Neb{
 		void SendUnsentStats();
 
 		//Callbacks
-		void(*_NebuleuseError_Callback)(NebuleuseError, std::string Msg);
-		void(*_NebuleuseLog_Callback)(std::string);
-		void(*_AchievementEarned_CallBack)(std::string);
+		void(*_NebuleuseError_Callback)(NebuleuseError, string Msg);
+		void(*_NebuleuseLog_Callback)(string);
+		void(*_AchievementEarned_CallBack)(string);
 		void(*_Connect_Callback)(bool sucess);
 		void(*_Disconnect_Callback)();
 
-		void ThrowError(NebuleuseError e, std::string Msg = "");
-		void ThrowError(int e, std::string Msg = "");
-		void Log(std::string msg);
-		const std::string CreateStatsMsg();
+		void ThrowError(NebuleuseError e, string Msg = "");
+		void ThrowError(int e, string Msg = "");
+		void Log(string msg);
 
 		//Talker
 		void Talk_GetServiceStatus();
-		void Talk_Connect(std::string username, std::string password);
+		void Talk_Connect(string username, string password);
 		void Talk_GetUserInfos();
-		void Talk_SendComplexStats(std::string data);
-		void Talk_SendAchievementProgress(std::string data);
-		void Talk_SendStatsUpdate(std::string stats);
+		void Talk_SendComplexStats(string data);
+		void Talk_SendAchievementProgress(string data);
+		void Talk_SendStatsUpdate(string stats);
 		void Talk_GetAvatar();
 		//Talker Threads
 		void Thread_GetServiceStatus();
-		void Thread_Connect(std::string username, std::string password);
+		void Thread_Connect(string username, string password);
 		void Thread_GetUserInfos();
-		void Thread_SendComplexStats(std::string data);
-		void Thread_SendAchievementProgress(std::string data);
-		void Thread_SendStatsUpdate(std::string stats);
+		void Thread_SendComplexStats(string data);
+		void Thread_SendAchievementProgress(string data);
+		void Thread_SendStatsUpdate(string stats);
 		void Thread_GetAvatar();
 
 		//Parser
-		std::string Parse_CreateComplexStatJson();
-		std::string Parse_CreateChangedAchievementsJson();
-		std::string Parse_CreateChangedStatsJson();
-		void Parse_Status(std::string);
-		void Parse_Connect(std::string);
-		void Parse_UserInfos(std::string);
-		void Parse_Errors(std::string);
+		string Parse_CreateComplexStatJson();
+		string Parse_CreateChangedAchievementsJson();
+		string Parse_CreateChangedStatsJson();
+		void Parse_Status(string);
+		void Parse_Connect(string);
+		void Parse_UserInfos(string);
+		void Parse_Errors(string);
 
 	private:
 		CurlWrap *_Curl;
 
-		std::string _HostName;
+		string _HostName;
 		unsigned int _Version;
 		unsigned int _ServerVersion;
-		std::string _Username;
-		std::string _Password;
-		std::string _Motd;
+		string _Username;
+		string _Password;
 		NebuleuseUserRank _UserRank;
 		NebuleuseState _State;
 		NebuleuseError _LastError;
-		std::string _SessionID;
-		std::string _AvatarUrl;
+		string _SessionID;
+		string _AvatarUrl;
 
-		std::vector<ComplexStat> _CStats;
-		std::vector<UserStat> _UserStats;
-		std::vector<Achievement> _Achievements;
+		vector<ComplexStat> _CStats;
+		map<string, UserStat> _UserStats;
+		map<string, Achievement> _Achievements;
+		map<string, ComplexStatsTableInfos> _CStatsTableInfos;
 	};
 }

@@ -27,7 +27,7 @@ void main(){
 
 	Neb::Achievement ach = neb->GetAchievement(1);
 	ach.Progress = ach.Progress + 1;
-	neb->SetAchievement(ach);
+	neb->SetAchievement(ach.Name, ach);
 
 	Neb::ComplexStat st("kills");
 	st.AddValue("x", std::to_string(5));
