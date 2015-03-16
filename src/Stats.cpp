@@ -2,12 +2,12 @@
 
 namespace Neb{
 	int Nebuleuse::GetUserStats(std::string name){
-		return _UserStats[name].Value;
+		return _Self.UserStats[name].Value;
 	}
 	void Nebuleuse::SetUserStats(std::string name, int value){
-		if (_UserStats[name].Value != value){
-			_UserStats[name].Value = value;
-			_UserStats[name].Changed = true;
+		if (_Self.UserStats[name].Value != value){
+			_Self.UserStats[name].Value = value;
+			_Self.UserStats[name].Changed = true;
 			SendStats();
 		}
 	}

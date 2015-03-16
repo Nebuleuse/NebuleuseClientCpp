@@ -11,15 +11,15 @@ namespace Neb{
 
 		_Version = version;
 
-		_UserRank = NEBULEUSE_USER_RANK_NORMAL;
+		_Self.UserRank = NEBULEUSE_USER_RANK_NORMAL;
 		_NebuleuseError_Callback = NULL;
 		_NebuleuseLog_Callback = NULL;
 		_AchievementEarned_CallBack = NULL;
 	}
 
 	Nebuleuse::~Nebuleuse() {
-		_Achievements.clear();
-		_UserStats.clear();
+		_Self.Achievements.clear();
+		_Self.UserStats.clear();
 		_CStats.clear();
 		delete _Curl;
 	}
@@ -31,8 +31,8 @@ namespace Neb{
 
 	void Nebuleuse::Connect(std::string username, std::string password){
 		if (_Username != username){ //New user, wipe older infos
-			_Achievements.clear();
-			_UserStats.clear();
+			_Self.Achievements.clear();
+			_Self.UserStats.clear();
 			_CStats.clear();
 		}
 

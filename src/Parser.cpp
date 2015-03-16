@@ -76,16 +76,16 @@ namespace Neb{
 		PARSEANDCHECK(data)
 
 			if (doc.HasMember("Rank") && doc["Rank"].IsInt()){
-			_UserRank = static_cast<NebuleuseUserRank>(doc["Rank"].GetInt());
+			_Self.UserRank = static_cast<NebuleuseUserRank>(doc["Rank"].GetInt());
 		}
 
 		if (doc.HasMember("Avatar") && doc["Avatar"].IsString()){
-			_AvatarUrl = doc["Avatar"].GetString();
+			_Self.AvatarUrl = doc["Avatar"].GetString();
 		}
 
 		if (doc.HasMember("Achievements") && doc["Achievements"].IsArray())
 		{
-			_Achievements.clear();
+			_Self.Achievements.clear();
 			const Value& achievements = doc["Achievements"];
 			int AchNbr = 0;
 			for (rapidjson::SizeType i = 0; i < achievements.Size(); i++)
@@ -99,14 +99,14 @@ namespace Neb{
 					newAchievement.ProgressMax = Ach["Value"].GetUint();
 					newAchievement.Id = Ach["Id"].GetUint();
 					newAchievement.Changed = false;
-					_Achievements[newAchievement.Name] = newAchievement;
+					_Self.Achievements[newAchievement.Name] = newAchievement;
 					AchNbr++;
 				}
 			}
 		}
 		if (doc.HasMember("Stats") && doc["Stats"].IsArray())
 		{
-			_UserStats.clear();
+			_Self.UserStats.clear();
 			const Value& stats = doc["Stats"];
 			for (rapidjson::SizeType i = 0; i < stats.Size(); i++)
 			{
@@ -117,7 +117,7 @@ namespace Neb{
 					stt.Name = Stat["Name"].GetString();
 					stt.Value = Stat["Value"].GetInt();
 					stt.Changed = false;
-					_UserStats[stt.Name] = stt;
+					_Self.UserStats[stt.Name] = stt;
 				}
 			}
 		}
@@ -156,7 +156,7 @@ namespace Neb{
 		Document::AllocatorType& allocator = doc.GetAllocator();
 		Value AllStats(kArrayType);
 
-		for (map<string, UserStat>::iterator it = _UserStats.begin(); it != _UserStats.end(); ++it){
+		for (map<string, UserStat>::iterator it = _Self.UserStats.begin(); it != _Self.UserStats.end(); ++it){
 			if (!it->second.Changed)
 				continue;
 
@@ -182,7 +182,7 @@ namespace Neb{
 		Document::AllocatorType& allocator = doc.GetAllocator();
 		Value AllAch(kArrayType);
 		
-		for (map<string, Achievement>::iterator it = _Achievements.begin(); it != _Achievements.end(); ++it){
+		for (map<string, Achievement>::iterator it = _Self.Achievements.begin(); it != _Self.Achievements.end(); ++it){
 			if (!it->second.Changed)
 				continue;
 
