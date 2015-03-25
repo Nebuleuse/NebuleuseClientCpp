@@ -53,8 +53,17 @@ namespace Neb{
 		_Self.Achievements[name].Changed = true;
 		SendAchievements();
 	}
+	int Nebuleuse::CountChangedAchievements(){
+		int count = 0;
+		for (map<string, Achievement>::iterator it = _Self.Achievements.begin(); it != _Self.Achievements.end(); ++it){
+			if (!it->second.Changed)
+				continue;
+			count++;
+		}
+		return count;
+	}
 	void Nebuleuse::SendAchievements(){
-		if (IsUnavailable())
+		if (IsUnavailable() || CountChangedAchievements() == 0)
 			return;
 		
 		string msg = Parse_CreateChangedAchievementsJson();

@@ -39,7 +39,7 @@ namespace Neb{
 		NEBULEUSE_USER_MASK_ONLYID = 2,
 		NEBULEUSE_USER_MASK_ACHIEVEMENTS = 4,
 		NEBULEUSE_USER_MASK_STATS = 8,
-		NEBULEUSE_USER_MASK_ALL = NEBULEUSE_USER_MASK_STATS | NEBULEUSE_USER_MASK_ACHIEVEMENTS
+		NEBULEUSE_USER_MASK_ALL = NEBULEUSE_USER_MASK_BASE | NEBULEUSE_USER_MASK_STATS | NEBULEUSE_USER_MASK_ACHIEVEMENTS
 	};
 		
 	struct Achievement
@@ -63,8 +63,7 @@ namespace Neb{
 	{
 		string Name;
 		map<string, string> Values;
-		ComplexStat(string n){
-			Name = n;
+		ComplexStat(string n) : Name(n) {
 		}
 		void AddValue(string name, string value){
 			Values[name] = value;
@@ -80,13 +79,13 @@ namespace Neb{
 	struct User
 	{
 		string Username;
-		uint UserID;
-		NebuleuseUserRank UserRank;
+		uint Id;
+		NebuleuseUserRank Rank;
 		string AvatarUrl;
 		uint AvialableInfos;
 		bool Loaded;
-
-		map<string, UserStat> UserStats;
+		User() : AvialableInfos(0), Loaded(false){}
+		map<string, UserStat> Stats;
 		map<string, Achievement> Achievements;
 	};
 
@@ -112,13 +111,15 @@ namespace Neb{
 		int         GetVersion()      { return _Version; }
 		int         GetServerVersion(){ return _ServerVersion; }
 
-		NebuleuseUserRank GetUserRank() { return _Self.UserRank; }
-		bool IsBanned()      { return (_Self.UserRank == NEBULEUSE_USER_RANK_BANNED); }
+		NebuleuseUserRank GetUserRank() { return _Self.Rank; }
+		bool IsBanned()      { return (_Self.Rank == NEBULEUSE_USER_RANK_BANNED); }
 		bool IsUnavailable() { return (GetState() == NEBULEUSE_NOTCONNECTED || GetState() == NEBULEUSE_DISABLED); }
 		bool IsOutDated()    { return (_LastError == NEBULEUSE_ERROR_OUTDATED); }
 		void SetState(NebuleuseState state){ _State = state; }
 		int  GetState()      { return _State; }
 		void SetOutDated()   { _LastError = NEBULEUSE_ERROR_OUTDATED; };
+
+		void InitLongPoll();
 
 		//Stats
 		//Get the user stats
@@ -147,6 +148,10 @@ namespace Neb{
 		uint GetAchievementCount();
 
 		//Users
+		//Self
+		void GetSelfInfos(int mask);
+		bool HasSelfInfos(int mask);
+		//Others
 		//Adds a user to fetch info about
 		void AddUser(uint userid, uint mask);
 		//Removes a user from memory
@@ -169,15 +174,14 @@ namespace Neb{
 		string CreateUrl(string path);
 		bool VerifyComplexStat(ComplexStat stat);
 
-		void ProceedConnection();
-		void FinishConnect();
+		void ProceedConnection(bool sucess);
 
 		void UpdateAchievement(string, uint progress);
 
 		void SendAchievements();
 		void SendStats();
-		void SendUnsentAchievements();
-		void SendUnsentStats();
+		int  CountChangedStats();
+		int  CountChangedAchievements();
 
 		//Callbacks
 		void(*_NebuleuseError_Callback)(NebuleuseError, string Msg);
@@ -193,7 +197,8 @@ namespace Neb{
 		//Talker
 		void Talk_GetServiceStatus();
 		void Talk_Connect(string username, string password);
-		void Talk_GetUserInfos();
+		void Talk_GetLongPoll();
+		void Talk_GetSelfInfos();
 		void Talk_SendComplexStats(string data);
 		void Talk_SendAchievementProgress(string data);
 		void Talk_SendStatsUpdate(string stats);
@@ -201,7 +206,8 @@ namespace Neb{
 		//Talker Threads
 		void Thread_GetServiceStatus();
 		void Thread_Connect(string username, string password);
-		void Thread_GetUserInfos();
+		void Thread_GetLongPoll();
+		void Thread_GetSelfInfos();
 		void Thread_SendComplexStats(string data);
 		void Thread_SendAchievementProgress(string data);
 		void Thread_SendStatsUpdate(string stats);
@@ -213,12 +219,10 @@ namespace Neb{
 		string Parse_CreateChangedStatsJson();
 		void Parse_Status(string);
 		void Parse_Connect(string);
-		void Parse_UserInfos(string);
+		void Parse_SelfInfos(string);
 		void Parse_Errors(string);
 
 	private:
-		CurlWrap *_Curl;
-
 		string _HostName;
 		uint _Version;
 		uint _ServerVersion;

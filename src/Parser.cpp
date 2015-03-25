@@ -62,29 +62,51 @@ namespace Neb{
 	}
 	void Nebuleuse::Parse_Connect(string data){
 		Document doc;
-		PARSEANDCHECK(data)
+		if (doc.Parse(data.c_str()).HasParseError()){
+			ThrowError(NEBULEUSE_ERROR_PARSEFAILED); 
+			return ProceedConnection(false);
+		}
+		if (!doc.IsObject()){
+			ThrowError(NEBULEUSE_ERROR_PARSEFAILED);
+			return ProceedConnection(false);
+		}
+		if (doc.HasMember("Code") && doc.HasMember("Message")){
+			if (doc["Code"].IsInt()){
+				ThrowError(doc["Code"].GetInt(), doc["Message"].GetString()); 
+				return ProceedConnection(false);
+			}
+		}
 
 		if (!doc.HasMember("SessionId") && doc["SessionId"].IsString()){
-			return ThrowError(NEBULEUSE_ERROR_PARSEFAILED);
+			ThrowError(NEBULEUSE_ERROR_PARSEFAILED);
+			return ProceedConnection(false);
 		}
 		_SessionID = doc["SessionId"].GetString();
 
-		ProceedConnection();
+		ProceedConnection(true);
 	}
-	void Nebuleuse::Parse_UserInfos(string data){
+	void Nebuleuse::Parse_SelfInfos(string data){
+		uint Masked = NEBULEUSE_USER_MASK_ONLYID;
 		Document doc;
 		PARSEANDCHECK(data)
 
-			if (doc.HasMember("Rank") && doc["Rank"].IsInt()){
-			_Self.UserRank = static_cast<NebuleuseUserRank>(doc["Rank"].GetInt());
+		if (doc.HasMember("Id") && doc["Id"].IsUint()){
+			Masked = NEBULEUSE_USER_MASK_BASE;
+			_Self.Id = doc["Id"].GetUint();
 		}
-
+		if (doc.HasMember("Username") && doc["Username"].IsString()){
+			_Self.Username= doc["Username"].GetString();
+		}
+		if (doc.HasMember("Rank") && doc["Rank"].IsInt()){
+			_Self.Rank= static_cast<NebuleuseUserRank>(doc["Rank"].GetInt());
+		}
 		if (doc.HasMember("Avatar") && doc["Avatar"].IsString()){
 			_Self.AvatarUrl = doc["Avatar"].GetString();
 		}
 
 		if (doc.HasMember("Achievements") && doc["Achievements"].IsArray())
 		{
+			Masked |= NEBULEUSE_USER_MASK_ACHIEVEMENTS;
 			_Self.Achievements.clear();
 			const Value& achievements = doc["Achievements"];
 			int AchNbr = 0;
@@ -106,7 +128,8 @@ namespace Neb{
 		}
 		if (doc.HasMember("Stats") && doc["Stats"].IsArray())
 		{
-			_Self.UserStats.clear();
+			Masked |= NEBULEUSE_USER_MASK_STATS;
+			_Self.Stats.clear();
 			const Value& stats = doc["Stats"];
 			for (rapidjson::SizeType i = 0; i < stats.Size(); i++)
 			{
@@ -117,11 +140,12 @@ namespace Neb{
 					stt.Name = Stat["Name"].GetString();
 					stt.Value = Stat["Value"].GetInt();
 					stt.Changed = false;
-					_Self.UserStats[stt.Name] = stt;
+					_Self.Stats[stt.Name] = stt;
 				}
 			}
 		}
-		FinishConnect();
+		_Self.AvialableInfos = Masked;
+		_Self.Loaded = true;
 	}
 	string Nebuleuse::Parse_CreateComplexStatJson(){
 		Document doc;
@@ -156,7 +180,7 @@ namespace Neb{
 		Document::AllocatorType& allocator = doc.GetAllocator();
 		Value AllStats(kArrayType);
 
-		for (map<string, UserStat>::iterator it = _Self.UserStats.begin(); it != _Self.UserStats.end(); ++it){
+		for (map<string, UserStat>::iterator it = _Self.Stats.begin(); it != _Self.Stats.end(); ++it){
 			if (!it->second.Changed)
 				continue;
 

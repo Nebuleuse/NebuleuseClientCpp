@@ -4,14 +4,15 @@
 
 namespace Neb{
 	Nebuleuse::Nebuleuse(std::string addr, unsigned int version){
+		CurlWrap::init();
 		_HostName = addr;
-		_Curl = new CurlWrap();
+		_Self = User();
 		SetState(NEBULEUSE_NOTCONNECTED);
 		_LastError = NEBULEUSE_ERROR_NONE;
 
 		_Version = version;
 
-		_Self.UserRank = NEBULEUSE_USER_RANK_NORMAL;
+		_Self.Rank = NEBULEUSE_USER_RANK_NORMAL;
 		_NebuleuseError_Callback = NULL;
 		_NebuleuseLog_Callback = NULL;
 		_AchievementEarned_CallBack = NULL;
@@ -19,9 +20,8 @@ namespace Neb{
 
 	Nebuleuse::~Nebuleuse() {
 		_Self.Achievements.clear();
-		_Self.UserStats.clear();
+		_Self.Stats.clear();
 		_CStats.clear();
-		delete _Curl;
 	}
 
 	bool Nebuleuse::Init(){
@@ -32,7 +32,7 @@ namespace Neb{
 	void Nebuleuse::Connect(std::string username, std::string password){
 		if (_Username != username){ //New user, wipe older infos
 			_Self.Achievements.clear();
-			_Self.UserStats.clear();
+			_Self.Stats.clear();
 			_CStats.clear();
 		}
 
@@ -40,20 +40,23 @@ namespace Neb{
 		_Password = password;
 		Talk_Connect(username, password);
 	}
-	void Nebuleuse::ProceedConnection(){
-		SetState(NEBULEUSE_CONNECTED); //We got a valid SessionId
+	//Called once we are connected to start longpoll and user data get
+	void Nebuleuse::ProceedConnection(bool success){
+		SetState(success ? NEBULEUSE_CONNECTED : NEBULEUSE_NOTCONNECTED); //We got a valid SessionId
 
-		//If we got disconnected before, changed data may need to be sent
-		SendAchievements();
-		SendStats();
-		SendComplexStats();
+		if (success){
+			//If we got disconnected before, changed data may need to be sent
+			SendAchievements();
+			SendStats();
+			SendComplexStats();
 
-		//Get fresh user Infos
-		Talk_GetUserInfos();
-	}
-	void Nebuleuse::FinishConnect(){
+			//Subscribe to messages
+			Talk_GetLongPoll();
+		}
+
+		// We have finished
 		if (_Connect_Callback)
-			_Connect_Callback(_State == NEBULEUSE_CONNECTED);
+			_Connect_Callback(success);
 	}
 
 	void Nebuleuse::Disconnect(bool fireCallback){

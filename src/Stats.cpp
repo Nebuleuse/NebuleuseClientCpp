@@ -2,23 +2,31 @@
 
 namespace Neb{
 	int Nebuleuse::GetUserStats(std::string name){
-		return _Self.UserStats[name].Value;
+		return _Self.Stats[name].Value;
 	}
 	void Nebuleuse::SetUserStats(std::string name, int value){
-		if (_Self.UserStats[name].Value != value){
-			_Self.UserStats[name].Value = value;
-			_Self.UserStats[name].Changed = true;
+		if (_Self.Stats[name].Value != value){
+			_Self.Stats[name].Value = value;
+			_Self.Stats[name].Changed = true;
 			SendStats();
 		}
 	}
 	void Nebuleuse::SendStats(){
-		if (IsUnavailable())
+		if (IsUnavailable() || CountChangedStats() == 0)
 			return;
 
 		std::string msg = Parse_CreateChangedStatsJson();
 		Talk_SendStatsUpdate(msg);
 	}
-
+	int Nebuleuse::CountChangedStats(){
+		int count = 0;
+		for (map<string, UserStat>::iterator it = _Self.Stats.begin(); it != _Self.Stats.end(); ++it){
+			if (!it->second.Changed)
+				continue;
+			count++;
+		}
+		return count;
+	}
 	void Nebuleuse::AddComplexStat(ComplexStat stat){
 		if (VerifyComplexStat(stat))
 			_CStats.push_back(stat);
@@ -38,7 +46,7 @@ namespace Neb{
 	}
 
 	void Nebuleuse::SendComplexStats(){
-		if (IsUnavailable())
+		if (IsUnavailable() || _CStats.size() == 0)
 			return;
 
 		std::string Msg;

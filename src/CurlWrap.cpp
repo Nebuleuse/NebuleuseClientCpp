@@ -47,11 +47,11 @@ namespace Neb{
 	const std::string CurlWrap::lastError() {
 		return errorBuffer;
 	}
-
-	CurlWrap::CurlWrap() {
+	void CurlWrap::init() {
 		/* Initiate libcurl */
 		curl_global_init(CURL_GLOBAL_ALL);
-
+	}
+	CurlWrap::CurlWrap() {
 		/* Get connection handle */
 		handle = curl_easy_init();
 

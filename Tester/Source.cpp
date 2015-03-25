@@ -19,11 +19,15 @@ void main(){
 	});
 
 	if (!neb->Init()){
+		system("pause");
 		return;
 	}
 	neb->Connect("test", "test");
 
 	while (!connected); // Here we need to wait for the client to be connected to be able to successfully use it
+	
+	neb->GetSelfInfos(Neb::NEBULEUSE_USER_MASK_ALL);
+	while (!neb->HasSelfInfos(Neb::NEBULEUSE_USER_MASK_BASE));
 
 	Neb::Achievement ach = neb->GetAchievement(1);
 	ach.Progress = ach.Progress + 1;
@@ -41,6 +45,6 @@ void main(){
 
 	int val = neb->GetUserStats("kills");
 	neb->SetUserStats("kills", val+1);
-	
+	while (true);
 	system("pause");
 }
