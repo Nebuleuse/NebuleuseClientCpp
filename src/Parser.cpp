@@ -4,14 +4,14 @@
 #include "rapidjson/stringbuffer.h"
 
 #define PARSEANDCHECK(x)	if (doc.Parse(x.c_str()).HasParseError()){\
-								return ThrowError(NEBULEUSE_ERROR_PARSEFAILED);\
+								return !ThrowError(NEBULEUSE_ERROR_PARSEFAILED);\
 							}\
 							if (!doc.IsObject()){\
-								return ThrowError(NEBULEUSE_ERROR_PARSEFAILED);\
+								return !ThrowError(NEBULEUSE_ERROR_PARSEFAILED);\
 							}\
 							if (doc.HasMember("Code") && doc.HasMember("Message")){\
 								if (doc["Code"].IsInt()){\
-									return ThrowError(doc["Code"].GetInt(), doc["Message"].GetString());\
+									return !ThrowError(doc["Code"].GetInt(), doc["Message"].GetString());\
 								}\
 							}
 #define STDTOJSONVAL(x) StringRef(x.c_str())
@@ -60,30 +60,16 @@ namespace Neb{
 		
 		return;
 	}
-	void Nebuleuse::Parse_Connect(string data){
+	bool Nebuleuse::Parse_Connect(string data){
 		Document doc;
-		if (doc.Parse(data.c_str()).HasParseError()){
-			ThrowError(NEBULEUSE_ERROR_PARSEFAILED); 
-			return ProceedConnection(false);
-		}
-		if (!doc.IsObject()){
-			ThrowError(NEBULEUSE_ERROR_PARSEFAILED);
-			return ProceedConnection(false);
-		}
-		if (doc.HasMember("Code") && doc.HasMember("Message")){
-			if (doc["Code"].IsInt()){
-				ThrowError(doc["Code"].GetInt(), doc["Message"].GetString()); 
-				return ProceedConnection(false);
-			}
-		}
+		PARSEANDCHECK(data)
 
 		if (!doc.HasMember("SessionId") && doc["SessionId"].IsString()){
-			ThrowError(NEBULEUSE_ERROR_PARSEFAILED);
-			return ProceedConnection(false);
+			return !ThrowError(NEBULEUSE_ERROR_PARSEFAILED);
 		}
 		_SessionID = doc["SessionId"].GetString();
 
-		ProceedConnection(true);
+		return true;
 	}
 	void Nebuleuse::Parse_SelfInfos(string data){
 		uint Masked = NEBULEUSE_USER_MASK_ONLYID;

@@ -190,8 +190,8 @@ namespace Neb{
 		void(*_Connect_Callback)(bool sucess);
 		void(*_Disconnect_Callback)();
 
-		void ThrowError(NebuleuseError e, string Msg = "");
-		void ThrowError(int e, string Msg = "");
+		bool ThrowError(NebuleuseError e, string Msg = "");
+		bool ThrowError(int e, string Msg = "");
 		void Log(string msg);
 
 		//Talker
@@ -218,7 +218,7 @@ namespace Neb{
 		string Parse_CreateChangedAchievementsJson();
 		string Parse_CreateChangedStatsJson();
 		void Parse_Status(string);
-		void Parse_Connect(string);
+		bool Parse_Connect(string);
 		void Parse_SelfInfos(string);
 		void Parse_Errors(string);
 
