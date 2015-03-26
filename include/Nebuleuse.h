@@ -6,7 +6,6 @@
 #define NEBULEUSEVERSION 1
 #define uint unsigned int
 
-class CurlWrap;
 using namespace std;
 
 namespace Neb{
