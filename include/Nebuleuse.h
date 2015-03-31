@@ -119,7 +119,7 @@ namespace Neb{
 		int  GetState()      { return _State; }
 		void SetOutDated()   { _LastError = NEBULEUSE_ERROR_OUTDATED; };
 
-		void InitLongPoll();
+		void SubscribeTo(string channel);
 
 		//Stats
 		//Get the user stats
@@ -194,7 +194,7 @@ namespace Neb{
 		void ThrowError(int e, string Msg = "");
 		void Log(string msg);
 
-		void GetServiceStatus()
+		void GetServiceStatus();
 		//Talker Threads
 		void Thread_GetServiceStatus();
 		void Thread_Connect(string username, string password);

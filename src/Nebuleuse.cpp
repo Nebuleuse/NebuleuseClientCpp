@@ -39,7 +39,7 @@ namespace Neb{
 
 		_Username = username;
 		_Password = password;
-		Talk_Connect(username, password);
+		STARTCOMTHREAD(Connect, username, password);
 	}
 	//Called once we are connected to start longpoll and user data get
 	void Nebuleuse::ProceedConnection(bool success){
@@ -108,5 +108,9 @@ namespace Neb{
 		url.append(getHost());
 		url.append(path);
 		return url;
+	}
+
+	void Nebuleuse::SubscribeTo(string channel){
+		STARTCOMTHREAD(SubscribeTo, channel)
 	}
 }

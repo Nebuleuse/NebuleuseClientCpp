@@ -80,4 +80,15 @@ namespace Neb{
 		}
 		delete c;
 	}
+	
+	void Nebuleuse::Thread_SubscribeTo(string channel){
+		CurlWrap *c = new CurlWrap();
+
+		c->addPost("sessionid", GetSessionID());
+		c->addPost("channel", channel);
+		string res = c->fetchPage(CreateUrl("/subscribeTo"), true);
+
+		Parse_Errors(res);
+		delete c;
+	}
 }
