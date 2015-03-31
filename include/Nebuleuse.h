@@ -4,6 +4,7 @@
 #include <map>
 
 #define NEBULEUSEVERSION 1
+#define MAXPOLLRETRY 5
 #define uint unsigned int
 
 using namespace std;
@@ -100,7 +101,7 @@ namespace Neb{
 		//Connect user
 		void Connect(string username, string password);
 		//Disconnect user
-		void Disconnect(bool fireCallback = false);
+		void Disconnect(bool fireCallback = true);
 
 		///Return the current state of Nebuleuse
 		string getUserName()     { return _Username; }
@@ -195,7 +196,6 @@ namespace Neb{
 
 		void GetServiceStatus();
 		//Talker Threads
-		void Thread_GetServiceStatus();
 		void Thread_Connect(string username, string password);
 		void Thread_GetLongPoll();
 		void Thread_SubscribeTo(string channel);
@@ -213,6 +213,7 @@ namespace Neb{
 		bool Parse_Connect(string);
 		bool Parse_SelfInfos(string);
 		bool Parse_Errors(string);
+		bool Parse_Messaging(string);
 
 	private:
 		string _HostName;

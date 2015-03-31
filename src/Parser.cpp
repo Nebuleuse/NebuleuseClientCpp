@@ -123,6 +123,10 @@ namespace Neb{
 		_Self.Loaded = true;
 		return true;
 	}
+	bool Nebuleuse::Parse_Messaging(string data){
+		Document doc;
+		PARSEANDCHECK(data)
+	}
 	string Nebuleuse::Parse_CreateComplexStatJson(){
 		Document doc;
 		doc.SetObject();

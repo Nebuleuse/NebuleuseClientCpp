@@ -17,6 +17,9 @@ void main(){
 		std::cout << "Connected\n";
 		connected = success;
 	});
+	neb->SetDisconnectCallback([](){
+		std::cout << "DisConnected\n";
+	});
 
 	if (!neb->Init()){
 		system("pause");
@@ -45,6 +48,8 @@ void main(){
 
 	int val = neb->GetUserStats("kills");
 	neb->SetUserStats("kills", val+1);
+
+	neb->SubscribeTo("msg");
 	while (true);
 	system("pause");
 }

@@ -73,11 +73,24 @@ namespace Neb{
 
 	void Nebuleuse::Thread_GetLongPoll(){
 		CurlWrap *c = new CurlWrap();
+		int emptyResponses = 0;
+
 		while (!IsUnavailable()){
 			c->addPost("sessionid", GetSessionID());
 			string res = c->fetchPage(CreateUrl("/longpoll"), true);
-
+			Log("Longpolled");
 			Log(res);
+			if (res == ""){
+				emptyResponses++;
+				if (emptyResponses >= MAXPOLLRETRY){
+					ThrowError(NEBULEUSE_ERROR_DISCONNECTED, "Lost connection to poll after retries");
+					return;
+				}
+			}
+			else {
+				emptyResponses = 0;
+				Parse_Messaging(res);
+			}
 		}
 		delete c;
 	}

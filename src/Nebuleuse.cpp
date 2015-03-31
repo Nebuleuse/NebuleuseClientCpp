@@ -26,7 +26,7 @@ namespace Neb{
 	}
 
 	bool Nebuleuse::Init(){
-		STARTCOMTHREAD(GetServiceStatus)
+		GetServiceStatus();
 		return _LastError == NEBULEUSE_ERROR_NONE;
 	}
 
@@ -62,7 +62,7 @@ namespace Neb{
 
 	void Nebuleuse::Disconnect(bool fireCallback){
 		SetState(NEBULEUSE_NOTCONNECTED);
-		if (_Disconnect_Callback)
+		if (fireCallback && _Disconnect_Callback)
 			_Disconnect_Callback();
 	}
 
