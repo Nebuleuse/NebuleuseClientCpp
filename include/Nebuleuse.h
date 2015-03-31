@@ -102,6 +102,8 @@ namespace Neb{
 		void Connect(string username, string password);
 		//Disconnect user
 		void Disconnect(bool fireCallback = true);
+		void Reconnect();
+		void TryReconnectIn(int seconds);
 
 		///Return the current state of Nebuleuse
 		string getUserName()     { return _Username; }
@@ -197,13 +199,14 @@ namespace Neb{
 		void GetServiceStatus();
 		//Talker Threads
 		void Thread_Connect(string username, string password);
-		void Thread_GetLongPoll();
+		void Thread_GetLongPoll(bool reconnecting = false);
 		void Thread_SubscribeTo(string channel);
 		void Thread_GetSelfInfos();
 		void Thread_SendComplexStats(string data);
 		void Thread_SendAchievementProgress(string data);
 		void Thread_SendStatsUpdate(string stats);
 		void Thread_GetAvatar();
+		void Thread_TryReconnectIn(int sec);
 
 		//Parser
 		string Parse_CreateComplexStatJson();

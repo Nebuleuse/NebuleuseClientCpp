@@ -126,6 +126,7 @@ namespace Neb{
 	bool Nebuleuse::Parse_Messaging(string data){
 		Document doc;
 		PARSEANDCHECK(data)
+		return true;
 	}
 	string Nebuleuse::Parse_CreateComplexStatJson(){
 		Document doc;

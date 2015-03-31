@@ -71,7 +71,7 @@ namespace Neb{
 		delete c;
 	}
 
-	void Nebuleuse::Thread_GetLongPoll(){
+	void Nebuleuse::Thread_GetLongPoll(bool reconnecting){
 		CurlWrap *c = new CurlWrap();
 		int emptyResponses = 0;
 
@@ -81,6 +81,9 @@ namespace Neb{
 			Log("Longpolled");
 			Log(res);
 			if (res == ""){
+				if (reconnecting) // Quick reconnection failed, get new sessionid
+					return Connect(_Username, _Password);
+
 				emptyResponses++;
 				if (emptyResponses >= MAXPOLLRETRY){
 					ThrowError(NEBULEUSE_ERROR_DISCONNECTED, "Lost connection to poll after retries");
@@ -89,7 +92,11 @@ namespace Neb{
 			}
 			else {
 				emptyResponses = 0;
-				Parse_Messaging(res);
+				bool success = Parse_Messaging(res);
+				if (reconnecting && success){
+					reconnecting = false;
+					SetState(NEBULEUSE_CONNECTED);
+				}
 			}
 		}
 		delete c;
@@ -104,5 +111,9 @@ namespace Neb{
 
 		Parse_Errors(res);
 		delete c;
+	}
+	void Nebuleuse::Thread_TryReconnectIn(int sec){
+		std::this_thread::sleep_for(std::chrono::seconds(sec));
+		Thread_GetLongPoll(true);
 	}
 }

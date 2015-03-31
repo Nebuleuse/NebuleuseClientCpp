@@ -19,6 +19,7 @@ void main(){
 	});
 	neb->SetDisconnectCallback([](){
 		std::cout << "DisConnected\n";
+		neb->TryReconnectIn(5);
 	});
 
 	if (!neb->Init()){

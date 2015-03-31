@@ -52,7 +52,7 @@ namespace Neb{
 			SendComplexStats();
 
 			//Subscribe to messages
-			STARTCOMTHREAD(GetLongPoll)
+			STARTCOMTHREAD(GetLongPoll, false)
 		}
 
 		// We have finished
@@ -113,5 +113,12 @@ namespace Neb{
 
 	void Nebuleuse::SubscribeTo(string channel){
 		STARTCOMTHREAD(SubscribeTo, channel)
+	}
+
+	void Nebuleuse::TryReconnectIn(int seconds){
+		STARTCOMTHREAD(TryReconnectIn, seconds)
+	}
+	void Nebuleuse::Reconnect(){
+		STARTCOMTHREAD(TryReconnectIn, 0)
 	}
 }
