@@ -23,7 +23,8 @@ namespace Neb{
 		c->addPost("password", password);
 		string res = c->fetchPage(CreateUrl("/connect"), true);
 
-		Parse_Connect(res);
+		bool success = Parse_Connect(res);
+		ProceedConnection(success);
 		delete c;
 	}
 

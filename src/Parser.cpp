@@ -4,16 +4,16 @@
 #include "rapidjson/stringbuffer.h"
 #include "Macros.h"
 
-
 namespace Neb{
 	using namespace rapidjson;
 
-	void Nebuleuse::Parse_Errors(string data){
+	bool Nebuleuse::Parse_Errors(string data){
 		Document doc;
 		PARSEANDCHECK(data)
+		return true;
 	}
 
-	void Nebuleuse::Parse_Status(string data){
+	bool Nebuleuse::Parse_Status(string data){
 		Document doc;
 		PARSEANDCHECK(data)
 
@@ -47,34 +47,20 @@ namespace Neb{
 			}
 		}
 		
-		return;
+		return true;
 	}
-	void Nebuleuse::Parse_Connect(string data){
+	bool Nebuleuse::Parse_Connect(string data){
 		Document doc;
-		if (doc.Parse(data.c_str()).HasParseError()){
-			ThrowError(NEBULEUSE_ERROR_PARSEFAILED); 
-			return ProceedConnection(false);
-		}
-		if (!doc.IsObject()){
-			ThrowError(NEBULEUSE_ERROR_PARSEFAILED);
-			return ProceedConnection(false);
-		}
-		if (doc.HasMember("Code") && doc.HasMember("Message")){
-			if (doc["Code"].IsInt()){
-				ThrowError(doc["Code"].GetInt(), doc["Message"].GetString()); 
-				return ProceedConnection(false);
-			}
-		}
+		PARSEANDCHECK(data)
 
 		if (!doc.HasMember("SessionId") && doc["SessionId"].IsString()){
-			ThrowError(NEBULEUSE_ERROR_PARSEFAILED);
-			return ProceedConnection(false);
+			return !ThrowError(NEBULEUSE_ERROR_PARSEFAILED);
 		}
 		_SessionID = doc["SessionId"].GetString();
 
-		ProceedConnection(true);
+		return true;
 	}
-	void Nebuleuse::Parse_SelfInfos(string data){
+	bool Nebuleuse::Parse_SelfInfos(string data){
 		uint Masked = NEBULEUSE_USER_MASK_ONLYID;
 		Document doc;
 		PARSEANDCHECK(data)
@@ -135,6 +121,7 @@ namespace Neb{
 		}
 		_Self.AvialableInfos = Masked;
 		_Self.Loaded = true;
+		return true;
 	}
 	string Nebuleuse::Parse_CreateComplexStatJson(){
 		Document doc;

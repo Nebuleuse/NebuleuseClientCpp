@@ -66,12 +66,12 @@ namespace Neb{
 			_Disconnect_Callback();
 	}
 
-	void Nebuleuse::ThrowError(int e, std::string Msg){
-		ThrowError(static_cast<NebuleuseError>(e), Msg);
+	bool Nebuleuse::ThrowError(int e, std::string Msg){
+		return ThrowError(static_cast<NebuleuseError>(e), Msg);
 	}
-	void Nebuleuse::ThrowError(NebuleuseError e, std::string Msg){
+	bool Nebuleuse::ThrowError(NebuleuseError e, std::string Msg){
 		if (e == NEBULEUSE_ERROR_NONE)
-			return;
+			return false;
 		else if (e == NEBULEUSE_ERROR_DISCONNECTED)
 			Disconnect();
 		else if(e == NEBULEUSE_ERROR_MAINTENANCE || e == NEBULEUSE_ERROR_OUTDATED)
@@ -80,6 +80,7 @@ namespace Neb{
 		_LastError = e;
 		if (_NebuleuseError_Callback)
 			_NebuleuseError_Callback(e, Msg);
+		return true;
 	}
 
 	void Nebuleuse::Log(std::string msg){
