@@ -194,19 +194,12 @@ namespace Neb{
 		void ThrowError(int e, string Msg = "");
 		void Log(string msg);
 
-		//Talker
-		void Talk_GetServiceStatus();
-		void Talk_Connect(string username, string password);
-		void Talk_GetLongPoll();
-		void Talk_GetSelfInfos();
-		void Talk_SendComplexStats(string data);
-		void Talk_SendAchievementProgress(string data);
-		void Talk_SendStatsUpdate(string stats);
-		void Talk_GetAvatar();
+		void GetServiceStatus()
 		//Talker Threads
 		void Thread_GetServiceStatus();
 		void Thread_Connect(string username, string password);
 		void Thread_GetLongPoll();
+		void Thread_SubscribeTo(string channel);
 		void Thread_GetSelfInfos();
 		void Thread_SendComplexStats(string data);
 		void Thread_SendAchievementProgress(string data);

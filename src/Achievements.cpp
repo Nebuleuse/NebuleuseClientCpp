@@ -1,4 +1,5 @@
 #include "Nebuleuse.h"
+#include "Macros.h"
 #include <algorithm>
 
 namespace Neb{
@@ -67,6 +68,6 @@ namespace Neb{
 			return;
 		
 		string msg = Parse_CreateChangedAchievementsJson();
-		Talk_SendAchievementProgress(msg);
+		STARTCOMTHREAD(SendAchievementProgress, msg)
 	}
 }

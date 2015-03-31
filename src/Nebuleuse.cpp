@@ -1,6 +1,7 @@
 #include <iostream>
 #include "CurlWrap.h"
 #include "Nebuleuse.h"
+#include "Macros.h"
 
 namespace Neb{
 	Nebuleuse::Nebuleuse(std::string addr, unsigned int version){
@@ -25,7 +26,7 @@ namespace Neb{
 	}
 
 	bool Nebuleuse::Init(){
-		Talk_GetServiceStatus();
+		STARTCOMTHREAD(GetServiceStatus)
 		return _LastError == NEBULEUSE_ERROR_NONE;
 	}
 
@@ -51,7 +52,7 @@ namespace Neb{
 			SendComplexStats();
 
 			//Subscribe to messages
-			Talk_GetLongPoll();
+			STARTCOMTHREAD(GetLongPoll)
 		}
 
 		// We have finished

@@ -1,4 +1,5 @@
 #include "Nebuleuse.h"
+#include "Macros.h"
 
 namespace Neb{
 	int Nebuleuse::GetUserStats(std::string name){
@@ -16,7 +17,7 @@ namespace Neb{
 			return;
 
 		std::string msg = Parse_CreateChangedStatsJson();
-		Talk_SendStatsUpdate(msg);
+		STARTCOMTHREAD(SendStatsUpdate, msg);
 	}
 	int Nebuleuse::CountChangedStats(){
 		int count = 0;
@@ -51,6 +52,6 @@ namespace Neb{
 
 		std::string Msg;
 		Msg = Parse_CreateComplexStatJson();
-		Talk_SendComplexStats(Msg);
+		STARTCOMTHREAD(SendComplexStats, Msg);
 	}
 }

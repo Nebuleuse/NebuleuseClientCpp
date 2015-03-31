@@ -5,7 +5,7 @@
 using namespace std;
 
 namespace Neb{
-	void Nebuleuse::Talk_GetServiceStatus(){
+	void Nebuleuse::GetServiceStatus(){
 		CurlWrap *c = new CurlWrap();
 
 
@@ -26,10 +26,6 @@ namespace Neb{
 		Parse_Connect(res);
 		delete c;
 	}
-	void Nebuleuse::Talk_Connect(string username, string password){
-		thread thre(&Nebuleuse::Thread_Connect, this, username, password);
-		thre.detach();
-	}
 
 	void Nebuleuse::Thread_GetSelfInfos(){
 		CurlWrap *c = new CurlWrap();
@@ -39,10 +35,6 @@ namespace Neb{
 
 		Parse_SelfInfos(res);
 		delete c;
-	}
-	void Nebuleuse::Talk_GetSelfInfos(){
-		thread thre(&Nebuleuse::Thread_GetSelfInfos, this);
-		thre.detach();
 	}
 
 	void Nebuleuse::Thread_SendComplexStats(string data){
@@ -55,10 +47,7 @@ namespace Neb{
 		Parse_Errors(res);
 		delete c;
 	}
-	void Nebuleuse::Talk_SendComplexStats(string data){
-		thread thre(&Nebuleuse::Thread_SendComplexStats, this, data);
-		thre.detach();
-	}
+
 	void Nebuleuse::Thread_SendStatsUpdate(string data){
 		CurlWrap *c = new CurlWrap();
 
@@ -68,10 +57,6 @@ namespace Neb{
 
 		Parse_Errors(res);
 		delete c;
-	}
-	void Nebuleuse::Talk_SendStatsUpdate(string data){
-		thread thre(&Nebuleuse::Thread_SendStatsUpdate, this, data);
-		thre.detach();
 	}
 
 	void Nebuleuse::Thread_SendAchievementProgress(string data){
@@ -84,10 +69,7 @@ namespace Neb{
 		Parse_Errors(res);
 		delete c;
 	}
-	void Nebuleuse::Talk_SendAchievementProgress(string data){
-		thread thre(&Nebuleuse::Thread_SendAchievementProgress, this, data);
-		thre.detach();
-	}
+
 	void Nebuleuse::Thread_GetLongPoll(){
 		CurlWrap *c = new CurlWrap();
 		while (!IsUnavailable()){
@@ -97,9 +79,5 @@ namespace Neb{
 			Log(res);
 		}
 		delete c;
-	}
-	void Nebuleuse::Talk_GetLongPoll(){
-		thread thre(&Nebuleuse::Thread_GetLongPoll, this);
-		thre.detach();
 	}
 }

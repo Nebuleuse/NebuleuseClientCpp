@@ -1,4 +1,5 @@
 #include "Nebuleuse.h"
+#include "Macros.h"
 
 namespace Neb {
 	void Nebuleuse::AddUser(uint userid, uint){
@@ -8,7 +9,7 @@ namespace Neb {
 		_Users.push_back(u);
 	}
 	void Nebuleuse::GetSelfInfos(int mask){
-		Talk_GetSelfInfos();
+		STARTCOMTHREAD(GetSelfInfos)
 	}
 	bool Nebuleuse::HasSelfInfos(int mask){
 		return (_Self.AvialableInfos & mask) == mask;
