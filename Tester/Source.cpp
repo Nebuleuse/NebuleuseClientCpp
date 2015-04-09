@@ -1,24 +1,27 @@
 #include <iostream>
 #include "Nebuleuse.h"
 
-Neb::Nebuleuse *neb;
+using namespace Neb;
+using namespace std;
+
+Nebuleuse *neb;
 bool connected = false;
 void main(){
-	neb = new Neb::Nebuleuse("http://127.0.0.1:8080", 1);
-	neb->SetLogCallBack([](std::string l) {
-		std::cout << l;
+	neb = new Nebuleuse("http://127.0.0.1:8080", 1);
+	neb->SetLogCallBack([](string l) {
+		cout << l;
 	});
-	neb->SetAchievementCallBack([](std::string name){
+	neb->SetAchievementCallBack([](string name){
 	});
-	neb->SetErrorCallBack([](Neb::NebuleuseError err, std::string Msg){
-		std::cout << Msg;
+	neb->SetErrorCallBack([](NebuleuseError err, string Msg){
+		cout << Msg;
 	});
 	neb->SetConnectCallback([](bool success){
-		std::cout << "Connected\n";
+		cout << "Connected\n";
 		connected = success;
 	});
 	neb->SetDisconnectCallback([](){
-		std::cout << "DisConnected\n";
+		cout << "DisConnected\n";
 		neb->TryReconnectIn(5);
 	});
 
@@ -26,21 +29,22 @@ void main(){
 		system("pause");
 		return;
 	}
-	neb->Connect("test", "test");
+	neb->Connect("test2", "test");
 
 	while (!connected); // Here we need to wait for the client to be connected to be able to successfully use it
 	
-	neb->GetSelfInfos(Neb::NEBULEUSE_USER_MASK_ALL);
-	while (!neb->HasSelfInfos(Neb::NEBULEUSE_USER_MASK_BASE));
+	neb->GetSelfInfos(NEBULEUSE_USER_MASK_ALL);
+	while (!neb->HasSelfInfos(NEBULEUSE_USER_MASK_BASE));
+	neb->FetchUser(2, NEBULEUSE_USER_MASK_ALL);
 
-	Neb::Achievement ach = neb->GetAchievement(1);
+	/*Achievement ach = neb->GetAchievement(1);
 	ach.Progress = ach.Progress + 1;
 	neb->SetAchievement(ach.Name, ach);
 
-	Neb::ComplexStat st("kills");
-	st.AddValue("x", std::to_string(5));
-	st.AddValue("y", std::to_string(5));
-	st.AddValue("z", std::to_string(5));
+	ComplexStat st("kills");
+	st.AddValue("x", to_string(5));
+	st.AddValue("y", to_string(5));
+	st.AddValue("z", to_string(5));
 	st.AddValue("weapon", "Flower");
 	st.AddValue("map", "test");
 	neb->AddComplexStat(st);
@@ -48,7 +52,7 @@ void main(){
 	neb->SendComplexStats();
 
 	int val = neb->GetUserStats("kills");
-	neb->SetUserStats("kills", val+1);
+	neb->SetUserStats("kills", val+1);*/
 
 	neb->SubscribeTo("msg");
 	while (true);

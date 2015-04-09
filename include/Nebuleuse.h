@@ -82,9 +82,9 @@ namespace Neb{
 		uint Id;
 		NebuleuseUserRank Rank;
 		string AvatarUrl;
-		uint AvialableInfos;
+		uint Mask;
 		bool Loaded;
-		User() : AvialableInfos(0), Loaded(false){}
+		User() : Mask(0), Loaded(false){}
 		map<string, UserStat> Stats;
 		map<string, Achievement> Achievements;
 	};
@@ -151,9 +151,8 @@ namespace Neb{
 
 		//Users
 		//Self
-		void GetSelfInfos(int mask);
-		bool HasSelfInfos(int mask);
-		//Others
+		void GetSelfInfos(uint mask);
+		bool HasSelfInfos(uint mask);
 		//Adds a user to fetch info about
 		void AddUser(uint userid, uint mask);
 		//Removes a user from memory
@@ -162,6 +161,10 @@ namespace Neb{
 		void FetchUser(uint userid, uint mask);
 		//Go fetch added users
 		void FetchUsers();
+		//Fetch more informations about an user
+		void FetchInformations(uint userid, uint mask);
+		//Get User informations
+		User GetUserInfos(uint userid);
 
 		//Set callbacks
 		void SetLogCallBack(void(*Callback)(string));
@@ -173,6 +176,7 @@ namespace Neb{
 		//Set Callback called when Nebuleuse is Disconnected
 		void SetDisconnectCallback(void(*Callback)());
 	private:
+		User* GetUserInfosPtr(uint userid);
 		string CreateUrl(string path);
 		bool VerifyComplexStat(ComplexStat stat);
 
@@ -201,7 +205,8 @@ namespace Neb{
 		void Thread_Connect(string username, string password);
 		void Thread_GetLongPoll(bool reconnecting = false);
 		void Thread_SubscribeTo(string channel);
-		void Thread_GetSelfInfos();
+		void Thread_GetSelfInfos(uint mask);
+		void Thread_GetUserInfos(uint userid, uint mask);
 		void Thread_SendComplexStats(string data);
 		void Thread_SendAchievementProgress(string data);
 		void Thread_SendStatsUpdate(string stats);
@@ -217,6 +222,8 @@ namespace Neb{
 		bool Parse_SelfInfos(string);
 		bool Parse_Errors(string);
 		bool Parse_Messaging(string);
+		bool Parse_UserInfos(string, User*);
+		bool Parse_UserInfos(string, int);
 
 	private:
 		string _HostName;

@@ -61,28 +61,34 @@ namespace Neb{
 		return true;
 	}
 	bool Nebuleuse::Parse_SelfInfos(string data){
+		return Parse_UserInfos(data, &_Self);
+	}
+	bool Nebuleuse::Parse_UserInfos(string data, int userid){
+		return Parse_UserInfos(data, GetUserInfosPtr(userid));
+	}
+	bool Nebuleuse::Parse_UserInfos(string data, User* target){
 		uint Masked = NEBULEUSE_USER_MASK_ONLYID;
 		Document doc;
 		PARSEANDCHECK(data)
 
 		if (doc.HasMember("Id") && doc["Id"].IsUint()){
 			Masked = NEBULEUSE_USER_MASK_BASE;
-			_Self.Id = doc["Id"].GetUint();
+			target->Id = doc["Id"].GetUint();
 		}
 		if (doc.HasMember("Username") && doc["Username"].IsString()){
-			_Self.Username= doc["Username"].GetString();
+			target->Username= doc["Username"].GetString();
 		}
 		if (doc.HasMember("Rank") && doc["Rank"].IsInt()){
-			_Self.Rank= static_cast<NebuleuseUserRank>(doc["Rank"].GetInt());
+			target->Rank= static_cast<NebuleuseUserRank>(doc["Rank"].GetInt());
 		}
 		if (doc.HasMember("Avatar") && doc["Avatar"].IsString()){
-			_Self.AvatarUrl = doc["Avatar"].GetString();
+			target->AvatarUrl = doc["Avatar"].GetString();
 		}
 
 		if (doc.HasMember("Achievements") && doc["Achievements"].IsArray())
 		{
 			Masked |= NEBULEUSE_USER_MASK_ACHIEVEMENTS;
-			_Self.Achievements.clear();
+			target->Achievements.clear();
 			const Value& achievements = doc["Achievements"];
 			int AchNbr = 0;
 			for (rapidjson::SizeType i = 0; i < achievements.Size(); i++)
@@ -96,7 +102,7 @@ namespace Neb{
 					newAchievement.ProgressMax = Ach["Value"].GetUint();
 					newAchievement.Id = Ach["Id"].GetUint();
 					newAchievement.Changed = false;
-					_Self.Achievements[newAchievement.Name] = newAchievement;
+					target->Achievements[newAchievement.Name] = newAchievement;
 					AchNbr++;
 				}
 			}
@@ -104,7 +110,7 @@ namespace Neb{
 		if (doc.HasMember("Stats") && doc["Stats"].IsArray())
 		{
 			Masked |= NEBULEUSE_USER_MASK_STATS;
-			_Self.Stats.clear();
+			target->Stats.clear();
 			const Value& stats = doc["Stats"];
 			for (rapidjson::SizeType i = 0; i < stats.Size(); i++)
 			{
@@ -115,17 +121,22 @@ namespace Neb{
 					stt.Name = Stat["Name"].GetString();
 					stt.Value = Stat["Value"].GetInt();
 					stt.Changed = false;
-					_Self.Stats[stt.Name] = stt;
+					target->Stats[stt.Name] = stt;
 				}
 			}
 		}
-		_Self.AvialableInfos = Masked;
-		_Self.Loaded = true;
+		target->Mask = Masked;
+		target->Loaded = true;
 		return true;
 	}
 	bool Nebuleuse::Parse_Messaging(string data){
 		Document doc;
 		PARSEANDCHECK(data)
+
+		
+		if (doc.HasMember("")){
+
+		}
 		return true;
 	}
 	string Nebuleuse::Parse_CreateComplexStatJson(){
