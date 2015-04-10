@@ -114,7 +114,7 @@ namespace Neb{
 		}
 		
 	}
-	
+
 	void Nebuleuse::Thread_SubscribeTo(string channel){
 		CurlWrap c;
 
@@ -123,8 +123,20 @@ namespace Neb{
 		string res = c.fetchPage(CreateUrl("/subscribeTo"), true);
 
 		Parse_Errors(res);
-		
+
 	}
+
+	void Nebuleuse::Thread_UnSubscribeTo(string channel){
+		CurlWrap c;
+
+		c.addPost("sessionid", GetSessionID());
+		c.addPost("channel", channel);
+		string res = c.fetchPage(CreateUrl("/unSubscribeTo"), true);
+
+		Parse_Errors(res);
+
+	}
+
 	void Nebuleuse::Thread_TryReconnectIn(int sec){
 		std::this_thread::sleep_for(std::chrono::seconds(sec));
 		Thread_GetLongPoll(true);

@@ -114,6 +114,9 @@ namespace Neb{
 	void Nebuleuse::SubscribeTo(string channel){
 		STARTCOMTHREAD(SubscribeTo, channel)
 	}
+	void Nebuleuse::UnSubscribeTo(string channel){
+		STARTCOMTHREAD(UnSubscribeTo, channel)
+	}
 
 	void Nebuleuse::TryReconnectIn(int seconds){
 		STARTCOMTHREAD(TryReconnectIn, seconds)

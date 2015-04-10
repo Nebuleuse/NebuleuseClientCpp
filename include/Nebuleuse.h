@@ -122,6 +122,7 @@ namespace Neb{
 		void SetOutDated()   { _LastError = NEBULEUSE_ERROR_OUTDATED; };
 
 		void SubscribeTo(string channel);
+		void UnSubscribeTo(string channel);
 
 		//Stats
 		//Get the user stats
@@ -205,6 +206,7 @@ namespace Neb{
 		void Thread_Connect(string username, string password);
 		void Thread_GetLongPoll(bool reconnecting = false);
 		void Thread_SubscribeTo(string channel);
+		void Thread_UnSubscribeTo(string channel);
 		void Thread_GetSelfInfos(uint mask);
 		void Thread_GetUserInfos(uint userid, uint mask);
 		void Thread_SendComplexStats(string data);
