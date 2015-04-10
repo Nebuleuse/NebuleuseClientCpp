@@ -1,6 +1,6 @@
 solution "NebuleuseClient"
    configurations { "Debug", "Release" }
-   platforms { "Win32", "Win64" }
+   platforms { "x86", "x64" }
 
 project "Nebuleuse"
    kind "StaticLib"
@@ -15,15 +15,19 @@ project "Nebuleuse"
    libdirs { "curl/builds/%{cfg.buildcfg}/lib" }
    
    defines "CURL_STATICLIB"
+
+   configuration "linux"
+      buildoptions { "-std=c++11" }
+      linkoptions { "-pthread" }
+      includedirs{"/usr/local/include", "/usr/include/x86_64-linux-gnu/c++/4.9/", "/usr/include/x86_64-linux-gnu"}
+
 	
-	filter { "platforms:Win32" }
+	filter { "platforms:x86" }
 		targetname "Nebuleuse.x86"
-		system "Windows"
 		architecture "x32"
 
-	filter { "platforms:Win64" }
+	filter { "platforms:x64" }
 		targetname "Nebuleuse.x64"
-		system "Windows"
 		architecture "x64"
    
    filter "configurations:Debug"
@@ -46,12 +50,10 @@ project "Tester"
    
    defines "CURL_STATICLIB"
    
-   	filter { "platforms:Win32" }
-		system "Windows"
+   filter { "platforms:x86" }
 		architecture "x32"
 
-	filter { "platforms:Win64" }
-		system "Windows"
+	filter { "platforms:x64" }
 		architecture "x64"
    
    filter "configurations:Debug"
@@ -61,12 +63,18 @@ project "Tester"
    filter "configurations:Release"
       defines { "NDEBUG" }
       optimize "On"
-	  
-	filter { "configurations:Release", "platforms:Win32"}
-		links { "libcurl_a.x86" }
-	filter { "configurations:Release", "platforms:Win64"}
-		links { "libcurl_a.x64" }
-	filter { "configurations:Debug", "platforms:Win32"}
-		links { "libcurl_a_debug.x86" }
-	filter { "configurations:Debug", "platforms:Win64"}
-		links { "libcurl_a_debug.x64" }
+   
+   filter {"system:not windows"}
+      buildoptions { "-std=c++11" }
+      linkoptions { "-pthread" }
+      links { "curl" }
+      includedirs{"/usr/local/include/curl"}
+
+  	filter { "configurations:Release", "platforms:x86", "system:windows"}
+  		links { "libcurl_a.x86" }
+  	filter { "configurations:Release", "platforms:x64", "system:windows"}
+  		links { "libcurl_a.x64" }
+  	filter { "configurations:Debug", "platforms:x86", "system:windows"}
+  		links { "libcurl_a_debug.x86" }
+  	filter { "configurations:Debug", "platforms:x64", "system:windows"}
+   		links { "libcurl_a_debug.x64" }

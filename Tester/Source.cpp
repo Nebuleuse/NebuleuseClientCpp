@@ -6,7 +6,7 @@ using namespace std;
 
 Nebuleuse *neb;
 bool connected = false;
-void main(){
+int main(){
 	neb = new Nebuleuse("http://127.0.0.1:8080", 1);
 	neb->SetLogCallBack([](string l) {
 		cout << l;
@@ -26,8 +26,8 @@ void main(){
 	});
 
 	if (!neb->Init()){
-		system("pause");
-		return;
+		while (cin.get() != '\n')
+		return 0;
 	}
 	neb->Connect("test2", "test");
 
@@ -57,4 +57,5 @@ void main(){
 	neb->SubscribeTo("msg");
 	while (true);
 	system("pause");
+	return 0;
 }

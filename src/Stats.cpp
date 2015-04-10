@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Nebuleuse.h"
 #include "Macros.h"
 

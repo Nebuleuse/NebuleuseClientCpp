@@ -1,5 +1,5 @@
 #include "CurlWrap.h"
-#include "curl\curl.h"
+#include "curl/curl.h"
 
 namespace Neb{
 	size_t writer(const char *data, size_t size, size_t nmemb, std::string *buffer) {

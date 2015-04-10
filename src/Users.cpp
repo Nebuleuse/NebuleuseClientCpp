@@ -20,14 +20,14 @@ namespace Neb {
 	User Nebuleuse::GetUserInfos(uint userid){
 		for (vector<User>::iterator it = _Users.begin(); it != _Users.end(); ++it){
 			if (it->Id == userid){
-				return *it._Ptr;
+				return *it;
 			}
 		}
 	}
 	User* Nebuleuse::GetUserInfosPtr(uint userid){
 		for (vector<User>::iterator it = _Users.begin(); it != _Users.end(); ++it){
 			if (it->Id == userid){
-				return it._Ptr;
+				return &it[0];
 			}
 		}
 	}
