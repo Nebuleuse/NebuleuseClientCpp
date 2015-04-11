@@ -23,6 +23,7 @@ namespace Neb{
 		NEBULEUSE_ERROR_DISCONNECTED, //The session timed out or never existed
 		NEBULEUSE_ERROR_LOGIN, //Error during login
 		NEBULEUSE_ERROR_PARTIAL_FAIL, //Error during multiple insertions or updates
+		NEBULEUSE_ERROR_AUTH_FAIL, // User is not authorized to do that
 		NEBULEUSE_ERROR_MAINTENANCE,//The service is on maintenance or offline
 		NEBULEUSE_ERROR_OUTDATED,//Game is outdated
 		NEBULEUSE_ERROR_PARSEFAILED
