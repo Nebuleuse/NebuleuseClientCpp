@@ -63,7 +63,7 @@ namespace Neb{
 
 		c.addPost("sessionid", GetSessionID());
 		c.addPost("data", data);
-		string res = c.fetchPage(CreateUrl("/updateStats"), true);
+		string res = c.fetchPage(CreateUrl("/setUserStats"), true);
 
 		Parse_Errors(res);
 		
@@ -74,7 +74,7 @@ namespace Neb{
 
 		c.addPost("sessionid", GetSessionID());
 		c.addPost("data", data);
-		string res = c.fetchPage(CreateUrl("/updateAchievements"), true);
+		string res = c.fetchPage(CreateUrl("/setUserAchievements"), true);
 
 		Parse_Errors(res);
 		

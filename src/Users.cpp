@@ -30,6 +30,7 @@ namespace Neb {
 				return &it[0];
 			}
 		}
+		return NULL;
 	}
 	void Nebuleuse::FetchUser(uint userid, uint mask){
 		AddUser(userid, mask);

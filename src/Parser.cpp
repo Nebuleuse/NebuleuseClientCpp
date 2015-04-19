@@ -94,12 +94,12 @@ namespace Neb{
 			for (rapidjson::SizeType i = 0; i < achievements.Size(); i++)
 			{
 				const Value& Ach = achievements[i];
-				if (Ach.HasMember("Name") && Ach.HasMember("Progress") && Ach.HasMember("Value"))
+				if (Ach.HasMember("Name") && Ach.HasMember("Progress") && Ach.HasMember("Max"))
 				{
 					Achievement newAchievement;
 					newAchievement.Name = Ach["Name"].GetString();
 					newAchievement.Progress = Ach["Progress"].GetUint();
-					newAchievement.ProgressMax = Ach["Value"].GetUint();
+					newAchievement.ProgressMax = Ach["Max"].GetUint();
 					newAchievement.Id = Ach["Id"].GetUint();
 					newAchievement.Changed = false;
 					target->Achievements[newAchievement.Name] = newAchievement;
