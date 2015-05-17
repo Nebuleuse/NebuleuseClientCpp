@@ -2,7 +2,7 @@
 This library is the official Nebuleuse C++ client. It allows developpers to integrate stats, achievements, matchmaking and more into your games. For more informations about Nebuleuse, please visit the [Nebuleuse Homepage][1].
 
 # Installation & building
-- git clone https://github.com/Orygin/NebuleuseCppClient.git
+- git clone https://github.com/Nebuleuse/NebuleuseClientCpp.git
 - git submodule init
 - git submodule update
 - Build cURL
@@ -21,47 +21,60 @@ Compiler requirement is C++11 support for threads.
 Neb::Nebuleuse *neb;
 bool connected = false;
 void main(){
-	neb = new Neb::Nebuleuse("http://127.0.0.1:8080", 1);
-	
-	neb->SetLogCallBack([](std::string l) {
-		std::cout << l;
+	neb = new Nebuleuse("http://127.0.0.1:8080", 1);
+	neb->SetLogCallBack([](string l) {
+		cout << l;
 	});
-	neb->SetAchievementCallBack([](std::string name){
+	neb->SetAchievementCallBack([](string name){
 	});
-	neb->SetErrorCallBack([](Neb::NebuleuseError err, std::string Msg){
-		std::cout << Msg;
+	neb->SetErrorCallBack([](NebuleuseError err, string Msg){
+		cout << Msg;
 	});
 	neb->SetConnectCallback([](bool success){
-		std::cout << "Connected\n";
+		cout << "Connected\n";
 		connected = success;
+	});
+	neb->SetDisconnectCallback([](){
+		cout << "DisConnected\n";
+		neb->TryReconnectIn(5);
 	});
 
 	if (!neb->Init()){
 		return;
 	}
+
 	neb->Connect("test", "test");
 
-// Here we need to wait for the client to be connected to be able to continue.
-	while (!connected);
+	while (!connected); // Here we need to wait for the client to be connected to be able to successfully use it
+	
+	//Getting users informations
+	neb->GetSelfInfos(NEBULEUSE_USER_MASK_ALL);
+	neb->FetchUser(2, NEBULEUSE_USER_MASK_ALL);
 
-	Neb::Achievement ach = neb->GetAchievement(1);
+	//Getting and using achievements
+	Achievement ach = neb->GetAchievement(1);
 	ach.Progress = ach.Progress + 1;
-	neb->SetAchievement(ach);
+	neb->SetAchievement(ach.Name, ach);
 
-	Neb::ComplexStat st("kills");
-	st.AddValue("x", std::to_string(5));
-	st.AddValue("y", std::to_string(5));
-	st.AddValue("z", std::to_string(5));
+	//Inserting a stat
+	ComplexStat st("kills");
+	st.AddValue("x", to_string(5));
+	st.AddValue("y", to_string(5));
+	st.AddValue("z", to_string(5));
 	st.AddValue("weapon", "Flower");
 	st.AddValue("map", "test");
 	neb->AddComplexStat(st);
-
 	neb->SendComplexStats();
 
-	int val = neb->GetUserStats("kills");
-	neb->SetUserStats("kills", val+1);
+	//Getting and setting users' stats
+	int val = neb->GetUserStats("level");
+	neb->SetUserStats("level", val+1);
+
+	//Subscribe to events
+	neb->SubscribeTo("msg");
 	
 	system("pause");
+	return 0;
 }
 ```
-[1]:https://github.com/Orygin/Nebuleuse
+[1]:https://nebuleuse.github.io/
