@@ -23,6 +23,7 @@ namespace Neb{
 		_Self.Achievements.clear();
 		_Self.Stats.clear();
 		_CStats.clear();
+		CurlWrap::cleanup();
 	}
 
 	bool Nebuleuse::Init(){

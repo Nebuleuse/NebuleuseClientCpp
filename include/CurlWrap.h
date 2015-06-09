@@ -10,6 +10,7 @@ namespace Neb{
 		CurlWrap();
 		~CurlWrap();
 		static void init();
+		static void cleanup();
 		void addPost(const std::string &name, const std::string &content);
 		std::string fetchPage(const std::string &url, bool ispost = false);
 		const std::string lastError();

@@ -17,7 +17,6 @@ namespace Neb{
 		return Achievement();
 	}
 	void Nebuleuse::SetAchievement(string name, Achievement ach){
-		_Self.Achievements[name] = ach;
 		UpdateAchievement(name, ach.Progress);
 	}
 	void Nebuleuse::UpdateAchievementProgress(string name, unsigned int progress){

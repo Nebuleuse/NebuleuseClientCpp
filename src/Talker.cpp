@@ -40,6 +40,7 @@ namespace Neb{
 	void Nebuleuse::Thread_GetUserInfos(uint userid, uint mask){
 		CurlWrap c;
 
+		c.addPost("sessionid", GetSessionID());
 		c.addPost("userid", to_string(userid));
 		c.addPost("infomask", to_string(mask));
 		string res = c.fetchPage(CreateUrl("/getUserInfos"), true);
@@ -86,9 +87,8 @@ namespace Neb{
 
 		while (!IsUnavailable() || reconnecting){
 			c.addPost("sessionid", GetSessionID());
-			string res = c.fetchPage(CreateUrl("/longpoll"), true);
-			Log("Longpolled");
-			Log(res);
+			string res = c.fetchPage(CreateUrl("/getMessages"), true);
+
 			if (c.lastError() != ""){
 				ThrowError(NEBULEUSE_ERROR_DISCONNECTED, c.lastError());
 				return;

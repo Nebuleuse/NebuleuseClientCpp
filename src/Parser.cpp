@@ -35,12 +35,13 @@ namespace Neb{
 			const Value &CSTable = doc["ComplexStatsTable"];
 			for (rapidjson::SizeType i = 0; i < CSTable.Size(); i++) {
 				const Value& CST = CSTable[i];
-				if (CST.HasMember("Name") && CST.HasMember("Fields") && CST.HasMember("AutoCount")){
+				if (CST.HasMember("Name") && CST.HasMember("Fields") && CST["Fields"].IsArray() && CST.HasMember("AutoCount")){
 					ComplexStatsTableInfos infos;
 					infos.Name = CST["Name"].GetString();
 					infos.AutoCount = CST["AutoCount"].GetBool();
 					for (rapidjson::SizeType i = 0; i < CST["Fields"].Size(); i++)	{
-						infos.Fields.push_back(CST["Fields"][i].GetString());
+						if (CST["Fields"][i].HasMember("Name"))
+							infos.Fields.push_back(CST["Fields"][i]["Name"].GetString());
 					}
 					_CStatsTableInfos[CST["Name"].GetString()] = infos;
 				}

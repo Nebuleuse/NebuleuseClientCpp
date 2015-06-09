@@ -15,7 +15,6 @@ namespace Neb{
 	CurlWrap::~CurlWrap() {
 		/* Clean up everything */
 		curl_easy_cleanup(handle);
-		curl_global_cleanup();
 	}
 	void CurlWrap::addPost(const std::string &name, const std::string &content) {
 		postStr.append(name);
@@ -50,6 +49,9 @@ namespace Neb{
 	void CurlWrap::init() {
 		/* Initiate libcurl */
 		curl_global_init(CURL_GLOBAL_ALL);
+	}
+	void CurlWrap::cleanup(){
+		curl_global_cleanup();
 	}
 	CurlWrap::CurlWrap() {
 		/* Get connection handle */

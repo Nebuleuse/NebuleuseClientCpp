@@ -37,7 +37,7 @@ int main(){
 	while (!neb->HasSelfInfos(NEBULEUSE_USER_MASK_BASE));
 	neb->FetchUser(2, NEBULEUSE_USER_MASK_ALL);
 
-	/*Achievement ach = neb->GetAchievement(1);
+	Achievement ach = neb->GetAchievement(1);
 	ach.Progress = ach.Progress + 1;
 	neb->SetAchievement(ach.Name, ach);
 
@@ -52,7 +52,7 @@ int main(){
 	neb->SendComplexStats();
 
 	int val = neb->GetUserStats("kills");
-	neb->SetUserStats("kills", val+1);*/
+	neb->SetUserStats("kills", val+1);
 
 	neb->SubscribeTo("msg");
 	while (true);
