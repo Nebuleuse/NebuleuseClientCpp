@@ -136,10 +136,6 @@ namespace Neb{
 		Document doc;
 		PARSEANDCHECK(data)
 
-		
-		if (doc.HasMember("")){
-
-		}
 		return true;
 	}
 	string Nebuleuse::Parse_CreateComplexStatJson(){

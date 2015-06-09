@@ -96,7 +96,14 @@ namespace Neb{
 				ThrowError(NEBULEUSE_ERROR_DISCONNECTED, c.lastError());
 				return;
 			}
-			if (res == ""){
+			if (Parse_Messaging(res)){
+				emptyResponses = 0;
+				if (reconnecting){
+					reconnecting = false;
+					SetState(NEBULEUSE_CONNECTED);
+				}
+			}
+			else {
 				if (reconnecting) // Quick reconnection failed, get new sessionid
 					return Connect(_Username, _Password);
 
@@ -104,14 +111,6 @@ namespace Neb{
 				if (emptyResponses >= MAXPOLLRETRY){
 					ThrowError(NEBULEUSE_ERROR_DISCONNECTED, "Lost connection to poll after retries");
 					return;
-				}
-			}
-			else {
-				emptyResponses = 0;
-				bool success = Parse_Messaging(res);
-				if (reconnecting && success){
-					reconnecting = false;
-					SetState(NEBULEUSE_CONNECTED);
 				}
 			}
 		}
