@@ -16,6 +16,7 @@ namespace Neb{
 	bool Nebuleuse::Parse_Status(string data){
 		Document doc;
 		PARSEANDCHECK(data)
+		lock_guard<mutex> lock(_DataLock);
 
 		if (doc.HasMember("Maintenance") && doc["Maintenance"].IsBool()){
 			if (doc["Maintenance"].GetBool())
@@ -53,7 +54,7 @@ namespace Neb{
 	bool Nebuleuse::Parse_Connect(string data){
 		Document doc;
 		PARSEANDCHECK(data)
-
+		lock_guard<mutex> lock(_DataLock);
 		if (!doc.HasMember("SessionId") && doc["SessionId"].IsString()){
 			return !ThrowError(NEBULEUSE_ERROR_PARSEFAILED);
 		}
@@ -71,6 +72,7 @@ namespace Neb{
 		uint Masked = NEBULEUSE_USER_MASK_ONLYID;
 		Document doc;
 		PARSEANDCHECK(data)
+		lock_guard<mutex> lock(_DataLock);
 
 		if (doc.HasMember("Id") && doc["Id"].IsUint()){
 			Masked = NEBULEUSE_USER_MASK_BASE;
@@ -141,6 +143,7 @@ namespace Neb{
 		return true;
 	}
 	string Nebuleuse::Parse_CreateComplexStatJson(){
+		lock_guard<mutex> lock(_DataLock);
 		Document doc;
 		doc.SetObject();
 		Document::AllocatorType& allocator = doc.GetAllocator();
@@ -168,6 +171,7 @@ namespace Neb{
 		return buffer.GetString();
 	}
 	string Nebuleuse::Parse_CreateChangedStatsJson(){
+		lock_guard<mutex> lock(_DataLock);
 		Document doc;
 		doc.SetObject();
 		Document::AllocatorType& allocator = doc.GetAllocator();
@@ -194,6 +198,7 @@ namespace Neb{
 	}
 
 	string Nebuleuse::Parse_CreateChangedAchievementsJson(){
+		lock_guard<mutex> lock(_DataLock);
 		Document doc;
 		doc.SetObject();
 		Document::AllocatorType& allocator = doc.GetAllocator();

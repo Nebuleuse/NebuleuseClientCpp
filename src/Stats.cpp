@@ -4,12 +4,15 @@
 
 namespace Neb{
 	int Nebuleuse::GetUserStats(std::string name){
+		lock_guard<mutex> lock(_DataLock);
 		return _Self.Stats[name].Value;
 	}
 	void Nebuleuse::SetUserStats(std::string name, int value){
+		_DataLock.lock();
 		if (_Self.Stats[name].Value != value){
 			_Self.Stats[name].Value = value;
 			_Self.Stats[name].Changed = true;
+			_DataLock.unlock();
 			SendStats();
 		}
 	}
@@ -17,10 +20,10 @@ namespace Neb{
 		if (IsUnavailable() || CountChangedStats() == 0)
 			return;
 
-		std::string msg = Parse_CreateChangedStatsJson();
-		STARTCOMTHREAD(SendStatsUpdate, msg);
+		STARTCOMTHREAD(SendStatsUpdate);
 	}
 	int Nebuleuse::CountChangedStats(){
+		lock_guard<mutex> lock(_DataLock);
 		int count = 0;
 		for (map<string, UserStat>::iterator it = _Self.Stats.begin(); it != _Self.Stats.end(); ++it){
 			if (!it->second.Changed)
@@ -30,6 +33,7 @@ namespace Neb{
 		return count;
 	}
 	void Nebuleuse::AddComplexStat(ComplexStat stat){
+		lock_guard<mutex> lock(_DataLock);
 		if (VerifyComplexStat(stat))
 			_CStats.push_back(stat);
 		else
@@ -51,8 +55,6 @@ namespace Neb{
 		if (IsUnavailable() || _CStats.size() == 0)
 			return;
 
-		std::string Msg;
-		Msg = Parse_CreateComplexStatJson();
-		STARTCOMTHREAD(SendComplexStats, Msg);
+		STARTCOMTHREAD(SendComplexStats);
 	}
 }

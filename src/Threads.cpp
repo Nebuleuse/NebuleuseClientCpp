@@ -48,7 +48,8 @@ namespace Neb{
 		Parse_UserInfos(res, userid);
 	}
 
-	void Nebuleuse::Thread_SendComplexStats(string data){
+	void Nebuleuse::Thread_SendComplexStats(){
+		string data = Parse_CreateComplexStatJson();
 		CurlWrap c;
 
 		c.addPost("sessionid", GetSessionID());
@@ -59,7 +60,8 @@ namespace Neb{
 		
 	}
 
-	void Nebuleuse::Thread_SendStatsUpdate(string data){
+	void Nebuleuse::Thread_SendStatsUpdate(){
+		string data = Parse_CreateChangedStatsJson();
 		CurlWrap c;
 
 		c.addPost("sessionid", GetSessionID());
@@ -70,7 +72,8 @@ namespace Neb{
 		
 	}
 
-	void Nebuleuse::Thread_SendAchievementProgress(string data){
+	void Nebuleuse::Thread_SendAchievementProgress(){
+		string data = Parse_CreateChangedAchievementsJson();
 		CurlWrap c;
 
 		c.addPost("sessionid", GetSessionID());

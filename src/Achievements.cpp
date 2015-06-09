@@ -4,12 +4,15 @@
 
 namespace Neb{
 	unsigned int Nebuleuse::GetAchievementCount(){
+		lock_guard<mutex> lock(_DataLock);
 		return _Self.Achievements.size();
 	}
 	Achievement Nebuleuse::GetAchievement(string name){
+		lock_guard<mutex> lock(_DataLock);
 		return _Self.Achievements[name];
 	}
 	Achievement Nebuleuse::GetAchievement(int id){
+		lock_guard<mutex> lock(_DataLock);
 		for (map<string, Achievement>::iterator it = _Self.Achievements.begin(); it != _Self.Achievements.end(); ++it){
 			if (it->second.Id == id)
 				return it->second;
@@ -42,6 +45,7 @@ namespace Neb{
 		}
 	}
 	void Nebuleuse::UpdateAchievement(string name, unsigned int progress){
+		_DataLock.lock();
 		if (_Self.Achievements[name].IsCompleted() || _Self.Achievements[name].Progress == progress)
 			return;
 					
@@ -51,9 +55,11 @@ namespace Neb{
 				
 		_Self.Achievements[name].Progress = progress > _Self.Achievements[name].ProgressMax ? _Self.Achievements[name].ProgressMax : progress;
 		_Self.Achievements[name].Changed = true;
+		_DataLock.unlock();
 		SendAchievements();
 	}
 	int Nebuleuse::CountChangedAchievements(){
+		lock_guard<mutex> lock(_DataLock);
 		int count = 0;
 		for (map<string, Achievement>::iterator it = _Self.Achievements.begin(); it != _Self.Achievements.end(); ++it){
 			if (!it->second.Changed)
@@ -66,7 +72,6 @@ namespace Neb{
 		if (IsUnavailable() || CountChangedAchievements() == 0)
 			return;
 		
-		string msg = Parse_CreateChangedAchievementsJson();
-		STARTCOMTHREAD(SendAchievementProgress, msg)
+		STARTCOMTHREAD(SendAchievementProgress)
 	}
 }

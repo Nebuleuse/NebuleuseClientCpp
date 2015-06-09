@@ -20,6 +20,7 @@ namespace Neb{
 	}
 
 	Nebuleuse::~Nebuleuse() {
+		lock_guard<mutex> lock(_DataLock);
 		_Self.Achievements.clear();
 		_Self.Stats.clear();
 		_CStats.clear();
@@ -30,16 +31,24 @@ namespace Neb{
 		GetServiceStatus();
 		return _LastError == NEBULEUSE_ERROR_NONE;
 	}
+	void Nebuleuse::SetState(NebuleuseState state){
+		lock_guard<mutex> lock(_NebLock);
+		_State = state;
+	}
 
 	void Nebuleuse::Connect(std::string username, std::string password){
+		lock_guard<mutex> lock(_NebLock);
 		if (_Username != username){ //New user, wipe older infos
+			_DataLock.lock();
 			_Self.Achievements.clear();
 			_Self.Stats.clear();
 			_CStats.clear();
+			_DataLock.unlock();
 		}
 
 		_Username = username;
 		_Password = password;
+
 		STARTCOMTHREAD(Connect, username, password);
 	}
 	//Called once we are connected to start longpoll and user data get

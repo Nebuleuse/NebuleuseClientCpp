@@ -40,6 +40,8 @@ int main(){
 	Achievement ach = neb->GetAchievement(1);
 	ach.Progress = ach.Progress + 1;
 	neb->SetAchievement(ach.Name, ach);
+	//Equivalent to
+	neb->UpdateAchievementProgress(ach.Name, ach.Progress + 1);
 
 	ComplexStat st("kills");
 	st.AddValue("x", to_string(5));

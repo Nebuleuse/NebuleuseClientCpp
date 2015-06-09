@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <mutex>
 
 #define NEBULEUSEVERSION 1
 #define MAXPOLLRETRY 5
@@ -118,7 +119,7 @@ namespace Neb{
 		bool IsBanned()      { return (_Self.Rank == NEBULEUSE_USER_RANK_BANNED); }
 		bool IsUnavailable() { return (GetState() == NEBULEUSE_NOTCONNECTED || GetState() == NEBULEUSE_DISABLED); }
 		bool IsOutDated()    { return (_LastError == NEBULEUSE_ERROR_OUTDATED); }
-		void SetState(NebuleuseState state){ _State = state; }
+		void SetState(NebuleuseState state);
 		int  GetState()      { return _State; }
 		void SetOutDated()   { _LastError = NEBULEUSE_ERROR_OUTDATED; };
 
@@ -210,9 +211,9 @@ namespace Neb{
 		void Thread_UnSubscribeTo(string channel);
 		void Thread_GetSelfInfos(uint mask);
 		void Thread_GetUserInfos(uint userid, uint mask);
-		void Thread_SendComplexStats(string data);
-		void Thread_SendAchievementProgress(string data);
-		void Thread_SendStatsUpdate(string stats);
+		void Thread_SendComplexStats();
+		void Thread_SendAchievementProgress();
+		void Thread_SendStatsUpdate();
 		void Thread_GetAvatar();
 		void Thread_TryReconnectIn(int sec);
 
@@ -229,17 +230,19 @@ namespace Neb{
 		bool Parse_UserInfos(string, int);
 
 	private:
+		mutex _NebLock;
 		string _HostName;
 		uint _Version;
 		uint _ServerVersion;
 		string _Username;
 		string _Password;
+		string _SessionID;
 		NebuleuseState _State;
 		NebuleuseError _LastError;
-		string _SessionID;
+		
+		mutex _DataLock;
 		User _Self;
 		vector<User> _Users;
-
 		vector<ComplexStat> _CStats;
 		map<string, ComplexStatsTableInfos> _CStatsTableInfos;
 	};
